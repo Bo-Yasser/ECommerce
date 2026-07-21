@@ -1,4 +1,5 @@
-﻿using ECommerce.Infrastructure.Data.DbContexts;
+﻿using ECommerce.Infrastructure.Persistence.DbContexts;
+using ECommerce.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,12 @@ public static class DependencyInjection
             options.UseSqlServer(config.GetConnectionString("DefaultConnection"))
                     .EnableSensitiveDataLogging();
         });
+
+        services.AddScoped<IDataSeeder, ProductBrandSeeder>();
+        services.AddScoped<IDataSeeder, ProductTypeSeeder>();
+        services.AddScoped<DatabaseSeeder>();
+
         return services;
+
     }
 }

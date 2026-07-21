@@ -1,4 +1,6 @@
-﻿namespace ECommerce.API;
+﻿using ECommerce.Infrastructure.Persistence.Seeding;
+
+namespace ECommerce.API;
 
 public static class DependencyInjection
 {

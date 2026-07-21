@@ -55,7 +55,6 @@ public class Product : BaseEntity
             productTypeId
         );
     }
-
     private void SetName( string name )
     {
         if(string.IsNullOrWhiteSpace(name))

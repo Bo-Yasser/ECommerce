@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ECommerce.Infrastructure.Data.Configurations;
+namespace ECommerce.Infrastructure.Persistence.Configurations;
 public class ProductBrandConfiguration : IEntityTypeConfiguration<ProductBrand>
 {
     public void Configure(EntityTypeBuilder<ProductBrand> builder)

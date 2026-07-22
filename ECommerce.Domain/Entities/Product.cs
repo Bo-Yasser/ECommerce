@@ -1,10 +1,10 @@
-﻿namespace ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Common;
+using ECommerce.Domain.Common.Errors;
+
+namespace ECommerce.Domain.Entities;
 
 public class Product : BaseEntity
 {
-    public const int MaxNameLength = 100;
-    public const int MaxDescriptionLength = 1000;
-    public const int MaxPictureUrlLength = 500;
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
 
@@ -12,15 +12,20 @@ public class Product : BaseEntity
     public decimal Price { get; private set; }
 
     // ProductBrand One Brand include Many Products 1:M
-    public Guid ProductBrandId { get; set; }
+    public Guid ProductBrandId { get; private set; }
     public ProductBrand ProductBrand { get; private set; } = null!;
 
     // ProductType One Type include Many Products 1:M
-    public Guid ProductTypeId { get; set; }
+    public Guid ProductTypeId { get; private set; }
     public ProductType ProductType { get; private set; } = null!;
 
-    private Product() { }
-    private Product(
+
+    public const int MaxNameLength = 100;
+    public const int MaxDescriptionLength = 1000;
+    public const int MaxPictureUrlLength = 500;
+    private Product() { } // important for EF Core
+
+    public static Result<Product> Create(
         string name,
         string description,
         string pictureUrl,
@@ -28,92 +33,114 @@ public class Product : BaseEntity
         Guid productBrandId,
         Guid productTypeId)
     {
-        Id = Guid.NewGuid();
+        var product = new Product();
 
-        SetName(name);
-        SetDescription(description);  
-        SetPictureUrl(pictureUrl);
-        SetPrice(price);
-        SetBrand(productBrandId);
-        SetType(productTypeId);
-    }
+        var nameResult = product.SetName(name);
+        if (nameResult.IsFailure)
+            return Result<Product>.Failure(nameResult.Error!);
 
-    public static Product Create(
-    string name,
-    string description,
-    string pictureUrl,
-    decimal price,
-    Guid productBrandId,
-    Guid productTypeId)
-    {
-        return new(
-            name,
-            description,
-            pictureUrl,
-            price,
-            productBrandId,
-            productTypeId
-        );
+        var descriptionResult = product.SetDescription(description);
+        if (descriptionResult.IsFailure)
+            return Result<Product>.Failure(descriptionResult.Error!);
+
+        var pictureUrlResult = product.SetPictureUrl(pictureUrl);
+        if (pictureUrlResult.IsFailure)
+            return Result<Product>.Failure(pictureUrlResult.Error!);
+
+        var priceResult = product.SetPrice(price);
+        if (priceResult.IsFailure)
+            return Result<Product>.Failure(priceResult.Error!);
+
+        var brandResult = product.SetBrand(productBrandId);
+        if (brandResult.IsFailure)
+            return Result<Product>.Failure(brandResult.Error!);
+
+        var typeResult = product.SetType(productTypeId);
+        if (typeResult.IsFailure)
+            return Result<Product>.Failure(typeResult.Error!);
+
+        return Result<Product>.Success(product);
+
     }
-    private void SetName( string name )
+    public Result Update(
+        string name,
+        string description,
+        string pictureUrl,
+        decimal price,
+        Guid productBrandId,
+        Guid productTypeId)
     {
-        if(string.IsNullOrWhiteSpace(name))
-        {
-            throw new InvalidOperationException("Product Name Is Required.");
-        }
-        if (name.Length > MaxNameLength)
-        {
-            throw new InvalidOperationException($"Product Name Cannot Exceed {MaxNameLength} characters.");
-        }
+
+        var nameResult = SetName(name);
+        if (nameResult.IsFailure)
+            return nameResult;
+
+        var descriptionResult = SetDescription(description);
+        if (descriptionResult.IsFailure)
+            return descriptionResult;
+
+        var pictureUrlResult = SetPictureUrl(pictureUrl);
+        if (pictureUrlResult.IsFailure)
+            return pictureUrlResult;
+
+        var priceResult = SetPrice(price);
+        if (priceResult.IsFailure)
+            return priceResult;
+
+        var brandResult = SetBrand(productBrandId);
+        if (brandResult.IsFailure)
+            return brandResult;
+
+        var typeResult = SetType(productTypeId);
+        if (typeResult.IsFailure)
+            return typeResult;
+
+        return Result.Success();
+
+    } 
+
+    private Result SetName( string name )
+    {
+        if (string.IsNullOrWhiteSpace(name)) return Result.Failure(ProductErrors.NameRequired);
+        if (name.Length > MaxNameLength) return Result.Failure(ProductErrors.NameLengthExceeded);
+
         Name = name.Trim();
+        return Result.Success();
     }
-    private void SetDescription(string description)
+    private Result SetDescription(string description)
     {
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            throw new InvalidOperationException("Product Description Is Required.");
-        }
-        if (description.Length > MaxDescriptionLength)
-        {
-            throw new InvalidOperationException($"Product Description Cannot Exceed {MaxDescriptionLength} characters.");
-        }
+        if (string.IsNullOrWhiteSpace(description)) return Result.Failure(ProductErrors.DescriptionRequired);
+        if (description.Length > MaxDescriptionLength) return Result.Failure(ProductErrors.DescriptionLengthExceeded);
+        
         Description = description.Trim();
+        return Result.Success();
     }
-    private void SetPictureUrl(string pictureUrl)
+    private Result SetPictureUrl(string pictureUrl)
     {
-        if (string.IsNullOrWhiteSpace(pictureUrl))
-        {
-            throw new InvalidOperationException("Product Picture Url Is Required.");
-        }
-        if (pictureUrl.Length > MaxPictureUrlLength)
-        {
-            throw new InvalidOperationException($"Product Picture Url Cannot Exceed {MaxPictureUrlLength} characters.");
-        }
+        if (string.IsNullOrWhiteSpace(pictureUrl)) Result.Failure(ProductErrors.PictureUrlRequired);
+        if (pictureUrl.Length > MaxPictureUrlLength) Result.Failure(ProductErrors.PictureUrlLengthExceeded);
+
         PictureUrl = pictureUrl.Trim();
+        return Result.Success();
     }
-    private void SetPrice(decimal price)
+    private Result SetPrice(decimal price)
     {
-        if(price < 0)
-        {
-            throw new InvalidOperationException($"Product Price cannot be negative.");
-        }
+        if (price < 0) return Result.Failure(ProductErrors.NegativePrice);
         Price = price;
+        return Result.Success();
     }
-    private void SetBrand(Guid productBrandId)
+    private Result SetBrand(Guid productBrandId)
     {
-        if (productBrandId == Guid.Empty)
-        {
-            throw new InvalidOperationException($"Product Brand Is Required.");
-        }
+        if (productBrandId == Guid.Empty) return Result.Failure(ProductErrors.ProductBrandRequired);
         ProductBrandId = productBrandId;
+        return Result.Success();
     }
-    private void SetType(Guid productTypeId)
+    private Result SetType(Guid productTypeId)
     {
-        if (productTypeId == Guid.Empty)
-        {
-            throw new InvalidOperationException($"Product Type Is Required.");
-        }
+        if (productTypeId == Guid.Empty) return Result.Failure(ProductErrors.ProductTypeRequired);
+
         ProductTypeId = productTypeId;
+        return Result.Success();
     }
 
 }

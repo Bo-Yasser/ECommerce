@@ -27,12 +27,26 @@ public class Result
 
 public sealed class Result<TValue> : Result
 {
-    public TValue? Value { get; set; }
+    private readonly TValue? _value;
     private Result(TValue? value, bool isSuccess, Error? error = null) : base(isSuccess, error)
     {
-        Value = value;
+        _value = value;
     }
+    public TValue Value =>
+        IsSuccess
+            ? _value!
+            : throw new InvalidOperationException("Cannot access the value of failed result.");
 
     public static Result<TValue> Success(TValue value) => new(value, true);
     public new static Result<TValue> Failure(Error error) => new(default, false, error);
+
+    public TResult Match<TResult>(
+        Func<TValue, TResult> onSuccess,
+        Func<Error, TResult> onFailure)
+    {
+
+        return IsSuccess ? onSuccess(_value!) : onFailure(Error!);
+    }
+
+    public static implicit operator Result<TValue>(TValue value) => Success(value);
 }

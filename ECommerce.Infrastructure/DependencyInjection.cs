@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Repositories;
+using ECommerce.Infrastructure.Interceptor;
 using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Seeding;
 using ECommerce.Infrastructure.Repositories;
@@ -14,10 +15,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration config)
     {
-        services.AddDbContext<StoreDbContext>(options =>
+        services.AddScoped<SoftDeleteInterceptor>();
+        services.AddScoped<AuditInterceptor>();
+
+        services.AddDbContext<StoreDbContext>((sp, options) =>
         {
             options.UseSqlServer(config.GetConnectionString("DefaultConnection"))
-                    .EnableSensitiveDataLogging();
+                    .EnableSensitiveDataLogging()
+                    .AddInterceptors(
+                        sp.GetRequiredService<SoftDeleteInterceptor>(),
+                        sp.GetRequiredService<AuditInterceptor>()
+                    );
+
         });
 
         services.AddScoped<IDataSeeder, ProductBrandSeeder>();
@@ -26,6 +35,7 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
 
     }

@@ -25,10 +25,10 @@ public sealed class Repository<T>(StoreDbContext _dbContext) : IRepository<T> wh
     }
     public void Update(T entity)
     {
-        _dbSet .Update(entity);
+        _dbSet.Update(entity);
     }
     public void Delete(T entity)
     {
-        entity.MarkAsDeleted();
+        _dbSet.Remove(entity);
     }
 }

@@ -8,9 +8,6 @@ public abstract class BaseEntity
     public bool IsDeleted { get; private set; }
 
     // todo (when add users): CreatedById, UpdatedById
-    public void MarkAsDeleted()
-    {
-        IsDeleted = true;
-        UpdatedAt = DateTimeOffset.UtcNow;
-    }
+    public void MarkAsDeleted() => IsDeleted = true;
+
 }

@@ -2,16 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace ECommerce.Infrastructure.Interceptor;
+namespace ECommerce.Infrastructure.Interceptors;
 
-public class AuditInterceptor : SaveChangesInterceptor
+public class SoftDeleteInterceptor : SaveChangesInterceptor
 {
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        ApplyAudit(eventData.Context);
+        ApplySoftDelete(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
@@ -19,28 +19,19 @@ public class AuditInterceptor : SaveChangesInterceptor
         DbContextEventData eventData,
         InterceptionResult<int> result)
     {
-        ApplyAudit(eventData.Context);
+        ApplySoftDelete(eventData.Context);
         return base.SavingChanges(eventData, result);
     }
-
-    private void ApplyAudit(DbContext? dbContext)
+    private void ApplySoftDelete(DbContext? dbContext)
     {
         if (dbContext is null) return;
 
-        var entries = dbContext.ChangeTracker.Entries<BaseEntity>();
-        var utcNow = DateTimeOffset.UtcNow;
+        var entries = dbContext.ChangeTracker.Entries<BaseEntity>()
+            .Where(e => e.State == EntityState.Deleted);
 
         foreach (var entry in entries)
         {
-            if (entry.State == EntityState.Added)
-            {
-                entry.Property(e => e.CreatedAt).CurrentValue = utcNow;
-            }
-            if (entry.State == EntityState.Modified)
-            {
-                entry.Property(e => e.UpdatedAt).CurrentValue = utcNow;
-            }
+            entry.Entity.MarkAsDeleted();
         }
     }
-
 }

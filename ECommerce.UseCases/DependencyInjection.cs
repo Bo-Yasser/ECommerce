@@ -1,11 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ECommerce.UseCases.Profiles;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace ECommerce.Application;
+namespace ECommerce.UseCases;
 
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(typeof(ProductConfig).Assembly);
+        
+        services.AddSingleton(config);
+        services.AddScoped<IMapper, ServiceMapper>();
         return services;
     }
 }
+ 

@@ -1,5 +1,4 @@
 using ECommerce.API;
-using ECommerce.API.Endpoints;
 using ECommerce.Infrastructure;
 using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Seeding;
@@ -27,6 +26,7 @@ if (app.Environment.IsDevelopment())
     await dbSeed.SeedAllAsync();
 }
 
-app.MapProductEndpoints();
+app.MapControllers();
+
 app.Run();
 

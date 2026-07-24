@@ -1,5 +1,6 @@
 ﻿using ECommerce.UseCases.ProductBrands.Queries;
 using ECommerce.UseCases.Products.Queries;
+using ECommerce.UseCases.ProductTypes.Queries;
 using ECommerce.UseCases.Profiles;
 using Mapster;
 using MapsterMapper;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<GetAllProductsQuery>();
         services.AddScoped<GetByIdProductQuery>();
         services.AddScoped<GetAllBrandsQuery>();
+        services.AddScoped<GetAllTypesQuery>();
 
         return services;
     }

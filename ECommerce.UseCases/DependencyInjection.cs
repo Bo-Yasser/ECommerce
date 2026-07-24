@@ -1,4 +1,6 @@
-﻿using ECommerce.UseCases.Profiles;
+﻿using ECommerce.UseCases.ProductBrands.Queries;
+using ECommerce.UseCases.Products.Queries;
+using ECommerce.UseCases.Profiles;
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,11 @@ public static class DependencyInjection
         
         services.AddSingleton(config);
         services.AddScoped<IMapper, ServiceMapper>();
+
+        services.AddScoped<GetAllProductsQuery>();
+        services.AddScoped<GetByIdProductQuery>();
+        services.AddScoped<GetAllBrandsQuery>();
+
         return services;
     }
 }

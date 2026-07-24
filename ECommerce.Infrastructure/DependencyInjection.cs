@@ -5,6 +5,7 @@ using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Queries;
 using ECommerce.Infrastructure.Persistence.Seeding;
 using ECommerce.Infrastructure.Repositories;
+using ECommerce.UseCases.ProductBrands;
 using ECommerce.UseCases.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IProductQueryService, ProductQueryService>();
+        services.AddScoped<IProductBrandQueryService, ProductBrandQueryService>();
 
         return services;
 

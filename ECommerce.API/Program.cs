@@ -1,8 +1,8 @@
 using ECommerce.API;
-using ECommerce.Application;
 using ECommerce.Infrastructure;
 using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Seeding;
+using ECommerce.UseCases;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

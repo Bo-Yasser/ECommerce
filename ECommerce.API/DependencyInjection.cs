@@ -1,5 +1,4 @@
 ﻿using ECommerce.API.Middlewares;
-using ECommerce.Infrastructure.Persistence.Seeding;
 
 namespace ECommerce.API;
 
@@ -11,6 +10,8 @@ public static class DependencyInjection
 
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionMiddleware>();
+
+        services.AddSwaggerGen();
 
         return services;
     }

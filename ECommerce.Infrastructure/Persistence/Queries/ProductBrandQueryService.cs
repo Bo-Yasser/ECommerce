@@ -10,7 +10,7 @@ public class ProductBrandQueryService(StoreDbContext dbContext) : IProductBrandQ
 {
     public async Task<IReadOnlyList<GetAllBrandsResponse>> GetAllBrandsAsync(CancellationToken cancellationToken = default)
     {
-        return await dbContext.Types
+        return await dbContext.Brands
             .AsNoTracking()
             .ProjectToType<GetAllBrandsResponse>()
             .ToListAsync(cancellationToken);

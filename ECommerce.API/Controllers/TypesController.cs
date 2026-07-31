@@ -8,9 +8,13 @@ public class TypesController(GetAllTypesQuery getAllTypesQuery) : ApiControllerB
 {
     [HttpGet] // GET api/types
     public async Task<ActionResult<IReadOnlyList<GetAllTypesResponse>>> GetAll(CancellationToken ct = default)
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllTypesResponse>>>> GetAll(CancellationToken ct = default)
     {
         var result = await getAllTypesQuery.ExecuteAsync(ct);
-        return Ok(result.Value);
+        if (result.IsFailure)
+            return Problem(result);
+
+        return Ok(ApiResponse<IReadOnlyList<GetAllTypesResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 
 }

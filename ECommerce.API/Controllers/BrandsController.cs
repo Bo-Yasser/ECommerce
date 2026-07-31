@@ -9,8 +9,12 @@ public class BrandsController(
 {
     [HttpGet] // GET api/brands
     public async Task<ActionResult<IReadOnlyList<GetAllBrandsResponse>>> GetAll(CancellationToken ct = default)
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllBrandsResponse>>>> GetAll(CancellationToken ct = default)
     {
         var result = await getAllBrandsQuery.ExecuteAsync(ct);
-        return Ok(result.Value);
+        if (result.IsFailure)
+            return Problem(result);
+
+        return Ok(ApiResponse<IReadOnlyList<GetAllBrandsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 }

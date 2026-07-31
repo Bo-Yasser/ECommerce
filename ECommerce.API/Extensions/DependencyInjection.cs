@@ -1,6 +1,6 @@
 ﻿using ECommerce.API.Middlewares;
 
-namespace ECommerce.API;
+namespace ECommerce.API.Extensions;
 
 public static class DependencyInjection
 {
@@ -12,6 +12,8 @@ public static class DependencyInjection
         services.AddExceptionHandler<GlobalExceptionMiddleware>();
 
         services.AddSwaggerGen();
+
+        services.AddApiVersioningConfig();
 
         return services;
     }

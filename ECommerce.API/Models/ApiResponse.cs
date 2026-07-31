@@ -42,7 +42,8 @@ public class PaginationMeta(int pageNumber, int pageSize, int totalCount)
     public int PageNumber { get; init; } = pageNumber;
     public int PageSize { get; init; } = pageSize;
     public int TotalCount { get; init; } = totalCount;
-    public int TotalPages { get; init; } = (int)Math.Ceiling(totalCount / (double)pageSize);
-    public bool HasPreviousPage { get; init; } = pageNumber > 1;
-    public bool HasNextPage { get; init; } = pageNumber < 1;
+
+    public int TotalPages => (int)Math.Ceiling(totalCount / (double)pageSize);
+    public bool HasPreviousPage => pageNumber > 1;
+    public bool HasNextPage => pageNumber < TotalPages;
 }

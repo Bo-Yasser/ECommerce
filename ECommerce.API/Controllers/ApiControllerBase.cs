@@ -1,11 +1,13 @@
-﻿using ECommerce.Domain.Common;
+﻿using Asp.Versioning;
+using ECommerce.Domain.Common;
 using ECommerce.Domain.Common.Errors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
 [ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class ApiControllerBase : ControllerBase
 {
 

@@ -1,4 +1,5 @@
-﻿using ECommerce.UseCases.Products.Dtos;
+﻿using ECommerce.API.Models;
+using ECommerce.UseCases.Products.Dtos;
 using ECommerce.UseCases.Products.Queries;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ public class ProductsController(
     GetByIdProductQuery getByIdProductQuery) : ApiControllerBase
 {
     [HttpGet] // GET api/products
-    public async Task<ActionResult<IReadOnlyList<GetAllProductsResponse>>> GetAll(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllProductsResponse>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllProductsResponse>>>> GetAll(CancellationToken ct = default)
     {
         var result = await getAllProductsQuery.ExecuteAsync(ct);
@@ -19,7 +20,8 @@ public class ProductsController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<GetByIdProductResponse>> GetById(Guid id, CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<GetByIdProductResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<GetByIdProductResponse>>> GetById(Guid id, CancellationToken ct = default)
     {
         var result = await getByIdProductQuery.ExecuteAsync(id, ct);

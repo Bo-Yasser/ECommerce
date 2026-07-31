@@ -1,4 +1,5 @@
-﻿using ECommerce.UseCases.ProductBrands.Dtos;
+﻿using ECommerce.API.Models;
+using ECommerce.UseCases.ProductBrands.Dtos;
 using ECommerce.UseCases.ProductBrands.Queries;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ public class BrandsController(
     GetAllBrandsQuery getAllBrandsQuery) : ApiControllerBase
 {
     [HttpGet] // GET api/brands
-    public async Task<ActionResult<IReadOnlyList<GetAllBrandsResponse>>> GetAll(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllBrandsResponse>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllBrandsResponse>>>> GetAll(CancellationToken ct = default)
     {
         var result = await getAllBrandsQuery.ExecuteAsync(ct);

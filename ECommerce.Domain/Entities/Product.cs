@@ -117,8 +117,8 @@ public class Product : BaseEntity
     }
     private Result SetPictureUrl(string pictureUrl)
     {
-        if (string.IsNullOrWhiteSpace(pictureUrl)) Result.Failure(ProductErrors.PictureUrlRequired);
-        if (pictureUrl.Length > MaxPictureUrlLength) Result.Failure(ProductErrors.PictureUrlLengthExceeded);
+        if (string.IsNullOrWhiteSpace(pictureUrl)) return Result.Failure(ProductErrors.PictureUrlRequired);
+        if (pictureUrl.Length > MaxPictureUrlLength) return Result.Failure(ProductErrors.PictureUrlLengthExceeded);
 
         PictureUrl = pictureUrl.Trim();
         return Result.Success();

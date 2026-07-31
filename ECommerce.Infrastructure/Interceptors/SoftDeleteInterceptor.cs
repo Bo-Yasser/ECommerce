@@ -32,6 +32,7 @@ public class SoftDeleteInterceptor : SaveChangesInterceptor
         foreach (var entry in entries)
         {
             entry.Entity.MarkAsDeleted();
+            entry.State = EntityState.Modified;
         }
     }
 }

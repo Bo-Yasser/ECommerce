@@ -8,6 +8,14 @@ namespace ECommerce.API.Controllers;
 public class BrandsController(
     GetAllBrandsQuery getAllBrandsQuery) : ApiControllerBase
 {
+    /// <summary>
+    /// Get all brands
+    /// </summary>
+    /// <param name="ct">A CancellationToken used to cancel the request</param>
+    /// <returns>
+    /// Returns a list of brands with their Id and Name
+    /// </returns>
+    /// <response code="200">Brands returned successfully</response>
     [HttpGet] // GET api/brands
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllBrandsResponse>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllBrandsResponse>>>> GetAll(CancellationToken ct = default)

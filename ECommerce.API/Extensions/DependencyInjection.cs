@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Middlewares;
+using System.Reflection;
 
 namespace ECommerce.API.Extensions;
 
@@ -11,7 +12,12 @@ public static class DependencyInjection
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionMiddleware>();
 
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            options.IncludeXmlComments(xmlPath);
+        });
 
         services.AddApiVersioningConfig();
 

@@ -11,7 +11,7 @@ public class DatabaseSeeder(
         foreach (var seeder in seeders.OrderBy(s => s.Order))
         {
             await seeder.SeedAsync(ct);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(ct);
         }
 
     }

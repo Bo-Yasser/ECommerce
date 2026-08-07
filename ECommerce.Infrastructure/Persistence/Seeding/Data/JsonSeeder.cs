@@ -18,7 +18,7 @@ public class JsonSeeder
             CancellationToken ct = default) where TEnitity : BaseEntity
     {
         // check if table is empty
-        if (await dbSet.AnyAsync()) return;
+        if (await dbSet.AnyAsync(ct)) return;
 
         // get the file
         var filePath = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "Data", fileName);
@@ -30,7 +30,7 @@ public class JsonSeeder
         // convert JSON file to List
         var models = await JsonSerializer.DeserializeAsync<List<TModel>>(stream, _options, ct);
 
-        // checl if there are data in the JSON file, or the data converted successfully to list
+        // check if there are data in the JSON file, or the data failed to convert to list
         if (models is null || models.Count == 0) return;
 
         // convert seed models to entities, to can add it to the table

@@ -1,24 +1,16 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
+using ECommerce.Domain.Specifications;
 using ECommerce.Infrastructure.Persistence.DbContexts;
+using ECommerce.Infrastructure.Persistence.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Repositories;
 
-public sealed class Repository<T>(StoreDbContext _dbContext) : IRepository<T> where T : BaseEntity
+public sealed class Repository<T>(StoreDbContext _dbContext) 
+    : IRepository<T> where T : BaseEntity
 {
     private readonly DbSet<T> _dbSet = _dbContext.Set<T>();
-    public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct)
-    {
-        return await _dbSet
-            .FirstOrDefaultAsync(entity => entity.Id == id, ct);
-    }
-    public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct)
-    {
-        return await _dbSet
-            .AsNoTracking()
-            .ToListAsync();
-    }
     public void Add(T entity)
     {
         _dbSet.Add(entity);
@@ -30,5 +22,45 @@ public sealed class Repository<T>(StoreDbContext _dbContext) : IRepository<T> wh
     public void Delete(T entity)
     {
         _dbSet.Remove(entity);
+    }
+
+    public async Task<T?> FirstOrDefaultAsync(ISpecification<T> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<TResult?> FirstOrDefaultAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<T> SingleAsync(ISpecification<T> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).SingleAsync(ct);
+    }
+
+    public async Task<TResult> SingleAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).SingleAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> specification, CancellationToken ct = default)
+    {
+       return await SpecificationEvaluator.GetQuery(_dbSet, specification).ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).ToListAsync(ct);
+    }
+
+    public async Task<int> CountAsync(ISpecification<T> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetCountQuery(_dbSet, specification).CountAsync(ct);
+    }
+
+    public async Task<bool> AnyAsync(ISpecification<T> specification, CancellationToken ct = default)
+    {
+        return await SpecificationEvaluator.GetQuery(_dbSet, specification).AnyAsync(ct);
     }
 }

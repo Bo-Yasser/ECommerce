@@ -1,16 +1,16 @@
 ﻿using ECommerce.Domain.Entities;
-using ECommerce.UseCases.Products.Dtos;
+using ECommerce.UseCases.Products.Responses;
 using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Products.Specifications;
 
-public sealed class ProductByIdSpecification : Specification<Product, GetByIdProductResponse>
+public sealed class ProductByIdSpecification : Specification<Product, GetProductByIdResponse>
 {
     public ProductByIdSpecification(Guid productId)
     {
         Query
             .Where(p => p.Id == productId)
-            .Select(product => new GetByIdProductResponse
+            .Select(product => new GetProductByIdResponse
             (
                 product.Id,
                 product.Name,

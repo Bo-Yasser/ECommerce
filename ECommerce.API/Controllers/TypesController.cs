@@ -1,11 +1,12 @@
-﻿using ECommerce.API.Models;
-using ECommerce.UseCases.ProductTypes.Dtos;
-using ECommerce.UseCases.ProductTypes.Queries;
+﻿using ECommerce.API.Contracts.Responses;
+using ECommerce.UseCases.ProductTypes.Queries.GetTypes;
+using ECommerce.UseCases.ProductTypes.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-public class TypesController(GetAllTypesQuery getAllTypesQuery) : ApiControllerBase
+public class TypesController(IMediator mediator) : ApiControllerBase
 {
     /// <summary>
     /// Get all types
@@ -16,14 +17,14 @@ public class TypesController(GetAllTypesQuery getAllTypesQuery) : ApiControllerB
     /// </returns>
     /// <response code="200">Types returned successfully</response>
     [HttpGet] // GET api/types
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllTypesResponse>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllTypesResponse>>>> GetAll(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetTypesResponse>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetTypesResponse>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await getAllTypesQuery.ExecuteAsync(ct);
+        var result = await mediator.Send(new GetTypesQuery(), ct);
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<IReadOnlyList<GetAllTypesResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<IReadOnlyList<GetTypesResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 
 }

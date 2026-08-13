@@ -1,13 +1,13 @@
-﻿using ECommerce.API.Models;
-using ECommerce.UseCases.Products.Dtos;
-using ECommerce.UseCases.Products.Queries;
+﻿using ECommerce.API.Contracts.Responses;
+using ECommerce.UseCases.Products.Queries.GetProductById;
+using ECommerce.UseCases.Products.Queries.GetProducts;
+using ECommerce.UseCases.Products.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-public class ProductsController(
-    GetAllProductsQuery getAllProductsQuery,
-    GetByIdProductQuery getByIdProductQuery) : ApiControllerBase
+public class ProductsController(IMediator mediator) : ApiControllerBase
 {
     /// <summary>
     /// Get all products
@@ -18,13 +18,13 @@ public class ProductsController(
     /// </returns>
     /// <response code="200">Products returned successfully</response>
     [HttpGet] // GET api/products
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllProductsResponse>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllProductsResponse>>>> GetAll(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetProductsResponse>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetProductsResponse>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await getAllProductsQuery.ExecuteAsync(ct);
+        var result = await mediator.Send(new GetProductsQuery(), ct);
         if (result.IsFailure)
             return Problem(result);
-        return Ok(ApiResponse<IReadOnlyList<GetAllProductsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<IReadOnlyList<GetProductsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 
     /// <summary>
@@ -38,14 +38,14 @@ public class ProductsController(
     /// <response code="200">Product was found successfully</response>
     /// <response code="404">Product was not found</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<GetByIdProductResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<GetProductByIdResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<GetByIdProductResponse>>> GetById(Guid id, CancellationToken ct = default)
+    public async Task<ActionResult<ApiResponse<GetProductByIdResponse>>> GetById(Guid id, CancellationToken ct = default)
     {
-        var result = await getByIdProductQuery.ExecuteAsync(id, ct);
+        var result = await mediator.Send(new GetProductByIdQuery(id), ct);
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<GetByIdProductResponse>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<GetProductByIdResponse>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 }

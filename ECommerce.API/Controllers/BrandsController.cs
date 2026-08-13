@@ -1,12 +1,12 @@
-﻿using ECommerce.API.Models;
-using ECommerce.UseCases.ProductBrands.Dtos;
-using ECommerce.UseCases.ProductBrands.Queries;
+﻿using ECommerce.API.Contracts.Responses;
+using ECommerce.UseCases.ProductBrands.Queries.GetBrands;
+using ECommerce.UseCases.ProductBrands.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
-public class BrandsController(
-    GetAllBrandsQuery getAllBrandsQuery) : ApiControllerBase
+public class BrandsController(IMediator mediator) : ApiControllerBase
 {
     /// <summary>
     /// Get all brands
@@ -17,13 +17,13 @@ public class BrandsController(
     /// </returns>
     /// <response code="200">Brands returned successfully</response>
     [HttpGet] // GET api/brands
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetAllBrandsResponse>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetAllBrandsResponse>>>> GetAll(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<GetBrandsResponse>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<IReadOnlyList<GetBrandsResponse>>>> GetAll(CancellationToken ct = default)
     {
-        var result = await getAllBrandsQuery.ExecuteAsync(ct);
+        var result = await mediator.Send(new GetBrandsQuery(), ct);
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<IReadOnlyList<GetAllBrandsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<IReadOnlyList<GetBrandsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
     }
 }

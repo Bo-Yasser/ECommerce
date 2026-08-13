@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ECommerce.API.Models;
+namespace ECommerce.API.Contracts.Responses;
 
 public class ApiResponse<T>
 {

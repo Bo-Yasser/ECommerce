@@ -24,4 +24,10 @@
     <ProjectReference Include="..\ECommerce.UseCases\ECommerce.UseCases.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contracts\Requests\ProductBrands\" />
+    <Folder Include="Contracts\Requests\ProductTypes\" />
+    <Folder Include="Contracts\Requests\Products\" />
+  </ItemGroup>
+
 </Project>

@@ -1,10 +1,11 @@
-﻿using ECommerce.UseCases.ProductBrands.Queries;
-using ECommerce.UseCases.Products.Queries;
-using ECommerce.UseCases.ProductTypes.Queries;
+﻿using ECommerce.UseCases.Behaviors;
 using ECommerce.UseCases.Profiles;
+using FluentValidation;
 using Mapster;
 using MapsterMapper;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace ECommerce.UseCases;
 
@@ -18,10 +19,14 @@ public static class DependencyInjection
         services.AddSingleton(config);
         services.AddScoped<IMapper, ServiceMapper>();
 
-        services.AddScoped<GetAllProductsQuery>();
-        services.AddScoped<GetByIdProductQuery>();
-        services.AddScoped<GetAllBrandsQuery>();
-        services.AddScoped<GetAllTypesQuery>();
+
+        services.AddMediatR(options =>
+        {
+            options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+        });
+
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
     }

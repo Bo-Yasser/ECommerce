@@ -1,6 +1,8 @@
 ﻿using Asp.Versioning;
+using ECommerce.API.Contracts.Responses;
 using ECommerce.Domain.Common;
 using ECommerce.Domain.Common.Errors;
+using ECommerce.UseCases.Common.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
@@ -10,6 +12,11 @@ namespace ECommerce.API.Controllers;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class ApiControllerBase : ControllerBase
 {
+    protected ActionResult<ApiResponse<T>> Success<T>(
+        T data,
+        string message,
+        PaginationMeta? pagination = null)
+        => Ok(ApiResponse<T>.Ok(data, HttpContext.TraceIdentifier, message, pagination));
 
     protected ActionResult Problem(Result result)
     {
@@ -55,5 +62,19 @@ public class ApiControllerBase : ControllerBase
         {
             StatusCode = statusCode
         };
+    }
+
+    protected ActionResult<ApiResponse<IReadOnlyList<T>>> FromPagedResult<T>(
+        Result<PagedResult<T>> result,
+        int pageNumber,
+        int pageSize,
+        string successMessage)
+    {
+        return result.IsFailure 
+            ? Problem(result)
+            : Success(
+                result.Value.Items,
+                successMessage,
+                new PaginationMeta(pageNumber, pageSize, result.Value.TotalCount));
     }
 }

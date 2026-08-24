@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ProductBrands\Commands\" />
-    <Folder Include="Products\Commands\" />
-    <Folder Include="ProductTypes\Commands\" />
+    <Folder Include="Features\ProductBrands\Commands\" />
+    <Folder Include="Features\Products\Commands\" />
+    <Folder Include="Features\ProductTypes\Commands\" />
   </ItemGroup>
 
 </Project>

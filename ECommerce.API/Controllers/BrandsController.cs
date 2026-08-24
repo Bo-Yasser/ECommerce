@@ -1,6 +1,6 @@
 ﻿using ECommerce.API.Contracts.Responses;
-using ECommerce.UseCases.ProductBrands.Queries.GetBrands;
-using ECommerce.UseCases.ProductBrands.Responses;
+using ECommerce.UseCases.Features.ProductBrands.Responses;
+using ECommerce.UseCases.Features.ProductBrands.Queries.GetBrands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

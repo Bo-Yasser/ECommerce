@@ -26,6 +26,7 @@ public class Product : BaseEntity
     private Product() { } // important for EF Core
 
     public static Result<Product> Create(
+        Guid id,
         string name,
         string description,
         string pictureUrl,
@@ -33,7 +34,9 @@ public class Product : BaseEntity
         Guid productBrandId,
         Guid productTypeId)
     {
-        var product = new Product();
+        if (id == Guid.Empty)
+            return Result<Product>.Failure(ProductErrors.InvalidId);
+        var product = new Product() { Id = id };
 
         var nameResult = product.SetName(name);
         if (nameResult.IsFailure)

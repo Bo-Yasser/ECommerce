@@ -1,5 +1,5 @@
 ﻿using ECommerce.Domain.Entities;
-using ECommerce.UseCases.ProductBrands.Responses;
+using ECommerce.UseCases.Features.ProductBrands.Responses;
 using Mapster;
 
 namespace ECommerce.UseCases.Profiles;

@@ -1,7 +1,7 @@
 ﻿using ECommerce.API.Contracts.Responses;
-using ECommerce.UseCases.Products.Queries.GetPagedProducts;
-using ECommerce.UseCases.Products.Queries.GetProductById;
-using ECommerce.UseCases.Products.Responses;
+using ECommerce.UseCases.Features.Products.Queries.GetPagedProducts;
+using ECommerce.UseCases.Features.Products.Responses;
+using ECommerce.UseCases.Features.Products.Queries.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

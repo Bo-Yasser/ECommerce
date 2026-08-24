@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Entities;
+using ECommerce.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -14,7 +15,7 @@ public class JsonSeeder
     public static async Task SeedIfEmpty<TEnitity, TModel>(
             DbSet<TEnitity> dbSet,
             string fileName,
-            Func<TModel, TEnitity> map,
+            Func<TModel, Result<TEnitity>> map,
             CancellationToken ct = default) where TEnitity : BaseEntity
     {
         // check if table is empty
@@ -22,7 +23,7 @@ public class JsonSeeder
 
         // get the file
         var filePath = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "Data", fileName);
-        if(!File.Exists(filePath)) return;
+        if (!File.Exists(filePath)) return;
 
         // open file stream to read file as chunks
         await using var stream = File.OpenRead(filePath);
@@ -33,8 +34,19 @@ public class JsonSeeder
         // check if there are data in the JSON file, or the data failed to convert to list
         if (models is null || models.Count == 0) return;
 
-        // convert seed models to entities, to can add it to the table
-        var entities = models.Select(map).ToList();
+        // convert the list of models to a list of Result<TEnitity>
+        var results = models.Select(map).ToList();
+
+        // check if there are any failure results
+        var failures = results.Where(r => r.IsFailure).ToList();
+        if (failures.Count > 0)
+        {
+            var errors = string.Join(" | ", failures.Select(f => f.Error!.Message));
+            throw new InvalidDataException($"Seeding failed for {fileName}. Errors: {errors}");
+        }
+
+        var entities = results.Select(r => r.Value!).ToList();
+
         await dbSet.AddRangeAsync(entities, ct);
 
         // SaveChangesAsync() in the Central Place, Main Seed Class (DatabaseSeeder)

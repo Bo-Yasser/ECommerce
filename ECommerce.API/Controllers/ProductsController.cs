@@ -4,6 +4,7 @@ using ECommerce.UseCases.Features.Products.Responses;
 using ECommerce.UseCases.Features.Products.Queries.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ECommerce.API.Constants;
 
 namespace ECommerce.API.Controllers;
 
@@ -13,6 +14,7 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     /// Get all products
     /// </summary>
     /// <param name="ct">A CancellationToken used to cancel the request</param>
+    /// <param name="query">A query used to specify product pagination</param>
     /// <returns>
     /// Returns a list of products with their Id and Name
     /// </returns>
@@ -27,7 +29,7 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
         if (result.IsFailure)
             return Problem(result);
 
-        return FromPagedResult(result, query.PageNumber, query.PageSize, "Paged Products Retrieved Successfully");
+        return FromPagedResult(result, query.PageNumber, query.PageSize, ProductMessages.ListRetrievedSuccessfully);
     }
 
     /// <summary>
@@ -49,6 +51,9 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<GetProductByIdResponse>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<GetProductByIdResponse>.Ok(
+            result.Value,
+            HttpContext.TraceIdentifier,
+            ProductMessages.RetrievedSuccessfully));
     }
 }

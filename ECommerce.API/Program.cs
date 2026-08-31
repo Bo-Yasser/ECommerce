@@ -1,5 +1,5 @@
 using ECommerce.API.Extensions;
-using ECommerce.Infrastructure;
+using ECommerce.Infrastructure.Extensions;
 using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Seeding;
 using ECommerce.UseCases;

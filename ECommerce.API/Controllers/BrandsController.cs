@@ -3,6 +3,7 @@ using ECommerce.UseCases.Features.ProductBrands.Responses;
 using ECommerce.UseCases.Features.ProductBrands.Queries.GetBrands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ECommerce.API.Constants;
 
 namespace ECommerce.API.Controllers;
 
@@ -24,6 +25,9 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<IReadOnlyList<GetBrandsResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<IReadOnlyList<GetBrandsResponse>>.Ok(
+            result.Value,
+            HttpContext.TraceIdentifier,
+            BrandMessages.ListRetrievedSuccessfully));
     }
 }

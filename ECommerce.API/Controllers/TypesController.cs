@@ -3,6 +3,7 @@ using ECommerce.UseCases.Features.ProductTypes.Responses;
 using ECommerce.UseCases.Features.ProductTypes.Queries.GetTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ECommerce.API.Constants;
 
 namespace ECommerce.API.Controllers;
 
@@ -24,7 +25,10 @@ public class TypesController(IMediator mediator) : ApiControllerBase
         if (result.IsFailure)
             return Problem(result);
 
-        return Ok(ApiResponse<IReadOnlyList<GetTypesResponse>>.Ok(result.Value, HttpContext.TraceIdentifier));
+        return Ok(ApiResponse<IReadOnlyList<GetTypesResponse>>.Ok(
+            result.Value,
+            HttpContext.TraceIdentifier,
+            TypeMessages.ListRetrievedSuccessfully));
     }
 
 }

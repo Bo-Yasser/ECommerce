@@ -1,4 +1,5 @@
-﻿using ECommerce.API.Middlewares;
+﻿using ECommerce.API.Filters;
+using ECommerce.API.Middlewares;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -8,11 +9,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        services.AddControllers()
-            .AddJsonOptions(options =>
-            {
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<AuditActionFilter>();
+        })
+        .AddJsonOptions(options =>
+        {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
+        });
 
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionMiddleware>();
@@ -25,6 +29,7 @@ public static class DependencyInjection
         });
 
         services.AddApiVersioningConfig();
+        services.AddScoped<BuyerIdFilter>();
 
         return services;
     }

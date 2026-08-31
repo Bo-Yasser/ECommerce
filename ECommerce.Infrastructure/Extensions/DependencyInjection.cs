@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ECommerce.Infrastructure;
+namespace ECommerce.Infrastructure.Extensions;
 
 public static class DependencyInjection
 {
@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped(typeof(IReadRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        services.AddHybridCacheWithEntitiesCaching(config);
 
         return services;
 

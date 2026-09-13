@@ -4,9 +4,10 @@ public record GetBasketResponse(
     Guid BuyerId,
     IReadOnlyList<BasketItemResponse> Items,
     int TotalItems,
-    decimal SubTotal)
+    decimal SubTotal,
+    bool IsGuest)
 {
-    public static GetBasketResponse From(Domain.Entities.Basket basket) =>
+    public static GetBasketResponse From(Domain.Entities.Basket basket, bool isGuest) =>
         new(
             basket.BuyerId,
             basket.Items
@@ -19,5 +20,6 @@ public record GetBasketResponse(
                     item.LineTotal))
                 .ToList(),
             basket.TotalItems,
-            basket.SubTotal);
+            basket.SubTotal,
+            isGuest);
 }

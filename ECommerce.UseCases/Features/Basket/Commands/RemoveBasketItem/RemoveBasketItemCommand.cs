@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Commands.RemoveBasketItem;
 
-public sealed record RemoveBasketItemCommand(Guid BuyerId, Guid ProductId) : IRequest<Result<GetBasketResponse>>;
+public sealed record RemoveBasketItemCommand(Guid ProductId) : IRequest<Result<GetBasketResponse>>;

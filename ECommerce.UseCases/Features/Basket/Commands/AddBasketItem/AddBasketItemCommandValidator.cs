@@ -14,10 +14,5 @@ public class AddBasketItemCommandValidator : AbstractValidator<AddBasketItemComm
         RuleFor(command => command.Quantity)
             .GreaterThan(0)
             .WithMessage("The quantity of the item to add must be greater than zero.");
-
-
-        RuleFor(command => command.BuyerId)
-            .NotEmpty()
-            .WithMessage("Buyer Id is required.");
     }
 }

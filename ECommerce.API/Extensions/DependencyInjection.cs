@@ -1,5 +1,7 @@
 ﻿using ECommerce.API.Filters;
 using ECommerce.API.Middlewares;
+using ECommerce.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -7,7 +9,7 @@ namespace ECommerce.API.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration config)
     {
         services.AddControllers(options =>
         {
@@ -29,8 +31,17 @@ public static class DependencyInjection
         });
 
         services.AddApiVersioningConfig();
-        services.AddScoped<BuyerIdFilter>();
 
+        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+        {
+            options.Password.RequiredLength = 8;
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = true;
+        })
+            .AddEntityFrameworkStores<IdentityStoreDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddAuthenticationAndAuthorization(config);
         return services;
     }
 }

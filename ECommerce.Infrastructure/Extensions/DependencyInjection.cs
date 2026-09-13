@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Repositories;
+using ECommerce.Infrastructure.Identity;
 using ECommerce.Infrastructure.Interceptors;
 using ECommerce.Infrastructure.Persistence.DbContexts;
 using ECommerce.Infrastructure.Persistence.Seeding;
@@ -20,7 +21,9 @@ public static class DependencyInjection
 
         services.AddDbContext<StoreDbContext>((sp, options) =>
         {
-            options.UseSqlServer(config.GetConnectionString("DefaultConnection"))
+            options.UseSqlServer(
+                config.GetConnectionString("DefaultConnection"),
+                sql => sql.MigrationsHistoryTable("__ApplicationMigrationsHistory"))
                     .EnableSensitiveDataLogging()
                     .AddInterceptors(
                         sp.GetRequiredService<SoftDeleteInterceptor>(),
@@ -29,15 +32,31 @@ public static class DependencyInjection
 
         });
 
+        services.AddDbContext<IdentityStoreDbContext>((sp, options) =>
+        {
+            options.UseSqlServer(
+                config.GetConnectionString("DefaultConnection"),
+                sql => sql.MigrationsHistoryTable("__IdentityMigrationsHistory"))
+                    .EnableSensitiveDataLogging()
+                    .AddInterceptors(
+                        sp.GetRequiredService<SoftDeleteInterceptor>(),
+                        sp.GetRequiredService<AuditInterceptor>()
+                    );
+        });
+
         services.AddScoped<IDataSeeder, ProductBrandSeeder>();
         services.AddScoped<IDataSeeder, ProductTypeSeeder>();
+        services.AddScoped<IDataSeeder, IdentitySeeder>();
         services.AddScoped<DatabaseSeeder>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped(typeof(IReadRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddHybridCacheWithEntitiesCaching(config);
+        services.AddAuthAndIdentityConfigurations();
+        services.AddEmailConfigurations();
 
         return services;
 

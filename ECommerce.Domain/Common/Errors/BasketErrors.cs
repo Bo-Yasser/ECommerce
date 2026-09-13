@@ -2,6 +2,11 @@
 
 public static class BasketErrors
 {
+    public static readonly Error BasketNotFound =
+        Error.NotFound(
+            "Basket.BasketNotFound",
+            "Basket was not found.");
+
     public static readonly Error GuestBuyerIdRequired =
         Error.Validation(
             "Basket.GuestBuyerIdRequired",

@@ -12,8 +12,8 @@
     <PackageReference Include="Mapster" Version="10.0.12" />
     <PackageReference Include="Mapster.DependencyInjection" Version="10.0.12" />
     <PackageReference Include="MediatR" Version="14.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Auth\Specifications\" />
+    <Folder Include="Features\Auth\Queries\" />
     <Folder Include="Features\ProductBrands\Commands\" />
     <Folder Include="Features\Products\Commands\" />
     <Folder Include="Features\ProductTypes\Commands\" />

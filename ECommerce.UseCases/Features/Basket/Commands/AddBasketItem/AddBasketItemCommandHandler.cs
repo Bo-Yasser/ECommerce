@@ -2,6 +2,7 @@
 using ECommerce.Domain.Common.Errors;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
+using ECommerce.UseCases.Common.Interfaces;
 using ECommerce.UseCases.Features.Basket.Responses;
 using ECommerce.UseCases.Features.Basket.Specifications;
 using MediatR;
@@ -10,7 +11,8 @@ namespace ECommerce.UseCases.Features.Basket.Commands.AddBasketItem;
 
 public sealed class AddBasketItemCommandHandler(
     IBasketStore basketStore,
-    IReadRepository<Product> productRepository)
+    IReadRepository<Product> productRepository,
+    ICurrentUserService currentUserService)
     : IRequestHandler<AddBasketItemCommand, Result<GetBasketResponse>>
 {
     public async Task<Result<GetBasketResponse>> Handle(AddBasketItemCommand request, CancellationToken cancellationToken)
@@ -21,8 +23,10 @@ public sealed class AddBasketItemCommandHandler(
         if (product is null)
             return Result<GetBasketResponse>.Failure(ProductErrors.NotFound);
 
+        var isGuest = !currentUserService.IsAuthenticated;
+        var buyerId = currentUserService.BuyerId ?? Guid.NewGuid();
 
-        var basket = await basketStore.GetOrCreateAsync(request.BuyerId, cancellationToken);
+        var basket = await basketStore.GetOrCreateAsync(buyerId, cancellationToken);
 
         var addResult = basket.AddItem(
             productId: product.Id,
@@ -35,6 +39,6 @@ public sealed class AddBasketItemCommandHandler(
             return Result<GetBasketResponse>.Failure(addResult.Error!);
 
         await basketStore.SaveAsync(basket, cancellationToken);
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket));
+        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest));
     }
 }

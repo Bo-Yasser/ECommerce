@@ -13,9 +13,5 @@ public class UpdateBasketItemQuantityCommandValidator : AbstractValidator<Update
         RuleFor(command => command.Quantity)
             .GreaterThan(0)
             .WithMessage("The updated quantity must be greater than zero. To remove an item, use the Remove endpoint.");
-
-        RuleFor(command => command.BuyerId)
-            .NotEmpty()
-            .WithMessage("Buyer Id is required.");
     }
 }

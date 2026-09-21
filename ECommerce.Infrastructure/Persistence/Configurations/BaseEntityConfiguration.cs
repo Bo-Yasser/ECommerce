@@ -12,5 +12,8 @@ internal static class BaseEntityConfiguration
             .HasDefaultValue(false);
 
         builder.HasQueryFilter(entity => !entity.IsDeleted);
+
+        builder.Property(entity => entity.Id)
+            .ValueGeneratedNever();
     }
 }

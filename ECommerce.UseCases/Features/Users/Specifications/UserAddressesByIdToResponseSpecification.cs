@@ -4,9 +4,9 @@ using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Features.Users.Specifications;
 
-public sealed class UserAddressesByIdSpecification : Specification<UserAddress, UserAddressResponse>
+public sealed class UserAddressesByIdToResponseSpecification : Specification<UserAddress, UserAddressResponse>
 {
-    public UserAddressesByIdSpecification(Guid userId)
+    public UserAddressesByIdToResponseSpecification(Guid userId)
     {
         Query 
             .Where(address => address.UserId == userId)

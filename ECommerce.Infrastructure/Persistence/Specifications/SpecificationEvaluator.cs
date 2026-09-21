@@ -126,7 +126,7 @@ public class SpecificationEvaluator
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Unsuported order type: {orderExpression.OrderType}");
+                        $"unsupported order type: {orderExpression.OrderType}");
             }
         }
         return query;

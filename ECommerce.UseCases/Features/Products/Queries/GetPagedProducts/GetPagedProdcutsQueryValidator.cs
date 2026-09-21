@@ -2,7 +2,7 @@
 
 namespace ECommerce.UseCases.Features.Products.Queries.GetPagedProducts;
 
-public class GetPagedProdcutsQueryValidator : AbstractValidator<GetPagedProductsQuery>
+public sealed class GetPagedProdcutsQueryValidator : AbstractValidator<GetPagedProductsQuery>
 {
     public GetPagedProdcutsQueryValidator()
     {

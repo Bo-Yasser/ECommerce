@@ -8,17 +8,17 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Products.Queries.GetPagedProducts;
 
-public class GetPagedProductsQueryHandler(IReadRepository<Product> repository)
-    : IRequestHandler<GetPagedProductsQuery, Result<PagedResult<GetProductsResponse>>>
+public sealed class GetPagedProductsQueryHandler(IReadRepository<Product> repository)
+    : IRequestHandler<GetPagedProductsQuery, Result<PagedResult<ProductResponse>>>
 {
-    public async Task<Result<PagedResult<GetProductsResponse>>> Handle(GetPagedProductsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<ProductResponse>>> Handle(GetPagedProductsQuery request, CancellationToken cancellationToken)
     {
         var countSpec = new PagedProductsSpecification(
                 request.Search,
                 request.BrandId,
                 request.TypeId);
 
-        var listSpecification = new PagedProductsSpecification(
+        var listSpec = new PagedProductsSpecification(
                 search: request.Search,
                 brandId: request.BrandId,
                 typeId: request.TypeId,
@@ -28,8 +28,8 @@ public class GetPagedProductsQueryHandler(IReadRepository<Product> repository)
                 pageSize: request.PageSize);
 
         var productsCount = await repository.CountAsync(countSpec, cancellationToken);
-        var products = await repository.ListAsync(listSpecification, cancellationToken);
+        var products = await repository.ListAsync(listSpec, cancellationToken);
 
-        return Result<PagedResult<GetProductsResponse>>.Success(new PagedResult<GetProductsResponse>(products, productsCount));
+        return Result<PagedResult<ProductResponse>>.Success(new PagedResult<ProductResponse>(products, productsCount));
     }
 }

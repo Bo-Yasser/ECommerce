@@ -14,6 +14,7 @@ public sealed class ProductTypeConfiguration : IEntityTypeConfiguration<ProductT
             .HasMaxLength(200);
 
         builder.HasIndex(pt => pt.Name)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
     }
 }

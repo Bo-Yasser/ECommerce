@@ -3,7 +3,7 @@ using ECommerce.Domain.Common.Errors;
 
 namespace ECommerce.Domain.Entities;
 
-public class UserAddress : BaseEntity
+public sealed class UserAddress : BaseEntity
 {
     public const int MaxNameLength = 100;
     public const int MaxPhoneLength = 32;
@@ -105,41 +105,50 @@ public class UserAddress : BaseEntity
     }
     private Result SetRecipientName(string firstName, string lastName)
     {
-        if (string.IsNullOrWhiteSpace(firstName) || firstName.Length > MaxNameLength ||
-            string.IsNullOrWhiteSpace(lastName) || lastName.Length > MaxNameLength)
+        var trimmedFirstName = firstName.Trim();
+        var trimmedLastName = lastName.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedFirstName) || trimmedFirstName.Length > MaxNameLength ||
+            string.IsNullOrWhiteSpace(trimmedLastName) || trimmedLastName.Length > MaxNameLength)
         {
             return Result.Failure(UserAddressErrors.InvalidName);
         }
-        RecipientFirstName = firstName;
-        RecipientLastName = lastName;
+        RecipientFirstName = trimmedFirstName;
+        RecipientLastName = trimmedLastName;
         return Result.Success();
     }
     private Result SetPhoneNumber(string phoneNumber)
     {
-        if (string.IsNullOrWhiteSpace(phoneNumber) || phoneNumber.Length > MaxPhoneLength)
+        var trimmedPhoneNumber = phoneNumber.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedPhoneNumber) || trimmedPhoneNumber.Length > MaxPhoneLength)
         {
             return Result.Failure(UserAddressErrors.InvalidPhoneNumber);
         }
-        PhoneNumber = phoneNumber;
+        PhoneNumber = trimmedPhoneNumber;
         return Result.Success();
     }
     private Result SetLocation(string country, string city, string street, string postalCode)
     {
-        if (string.IsNullOrWhiteSpace(country) || country.Length > MaxCountryLength ||
-            string.IsNullOrWhiteSpace(city) || city.Length > MaxCityLength ||
-            string.IsNullOrWhiteSpace(street) || street.Length > MaxStreetLength)
+        var trimmedCountry = country?.Trim();
+        var trimmedCity = city?.Trim();
+        var trimmedStreet = street?.Trim();
+        var trimmedPostalCode = postalCode?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedCountry) || trimmedCountry.Length > MaxCountryLength ||
+            string.IsNullOrWhiteSpace(trimmedCity) || trimmedCity.Length > MaxCityLength ||
+            string.IsNullOrWhiteSpace(trimmedStreet) || trimmedStreet.Length > MaxStreetLength)
         {
             return Result.Failure(UserAddressErrors.InvalidLocation);
         }
-        if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length > MaxPostalCodeLength)
+
+        if (string.IsNullOrWhiteSpace(trimmedPostalCode) || trimmedPostalCode.Length > MaxPostalCodeLength)
         {
             return Result.Failure(UserAddressErrors.InvalidPostalCode);
         }
 
-        Country = country;
-        City = city;
-        Street = street;
-        PostalCode = postalCode;
+        Country = trimmedCountry;
+        City = trimmedCity;
+        Street = trimmedStreet;
+        PostalCode = trimmedPostalCode;
 
         return Result.Success();
     }

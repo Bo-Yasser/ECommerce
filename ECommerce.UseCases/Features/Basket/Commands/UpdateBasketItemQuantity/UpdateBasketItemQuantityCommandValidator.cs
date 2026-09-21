@@ -2,7 +2,7 @@
 
 namespace ECommerce.UseCases.Features.Basket.Commands.UpdateBasketItemQuantity;
 
-public class UpdateBasketItemQuantityCommandValidator : AbstractValidator<UpdateBasketItemQuantityCommand>
+public sealed class UpdateBasketItemQuantityCommandValidator : AbstractValidator<UpdateBasketItemQuantityCommand>
 {
     public UpdateBasketItemQuantityCommandValidator()
     {

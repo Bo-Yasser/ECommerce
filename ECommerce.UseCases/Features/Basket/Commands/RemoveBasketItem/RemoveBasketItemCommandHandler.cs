@@ -10,24 +10,24 @@ namespace ECommerce.UseCases.Features.Basket.Commands.RemoveBasketItem;
 public sealed class RemoveBasketItemCommandHandler(
     IBasketStore basketStore,
     ICurrentUserService currentUserService)
-    : IRequestHandler<RemoveBasketItemCommand, Result<GetBasketResponse>>
+    : IRequestHandler<RemoveBasketItemCommand, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(RemoveBasketItemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(RemoveBasketItemCommand request, CancellationToken cancellationToken)
     {
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId;
         if (buyerId is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.GuestBuyerIdRequired);
+            return Result<BasketResponse>.Failure(BasketErrors.AnonymousBuyerRequired);
 
         var basket = await basketStore.GetOrCreateAsync(buyerId.Value, cancellationToken);
         if(basket is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.BasketNotFound);
+            return Result<BasketResponse>.Failure(BasketErrors.BasketNotFound);
 
         var removeResult = basket.RemoveItem(request.ProductId);
         if (removeResult.IsFailure)
-            return Result<GetBasketResponse>.Failure(removeResult.Error!);
+            return Result<BasketResponse>.Failure(removeResult.Error!);
 
         await basketStore.SaveAsync(basket, cancellationToken);
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest));
+        return Result<BasketResponse>.Success(BasketResponse.From(basket, isGuest));
     }
 }

@@ -13,15 +13,15 @@ public sealed class AddBasketItemCommandHandler(
     IBasketStore basketStore,
     IReadRepository<Product> productRepository,
     ICurrentUserService currentUserService)
-    : IRequestHandler<AddBasketItemCommand, Result<GetBasketResponse>>
+    : IRequestHandler<AddBasketItemCommand, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(AddBasketItemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(AddBasketItemCommand request, CancellationToken cancellationToken)
     {
         var product = await productRepository.FirstOrDefaultAsync(
             new ProductForBasketSpecification(request.ProductId),
             cancellationToken);
         if (product is null)
-            return Result<GetBasketResponse>.Failure(ProductErrors.NotFound);
+            return Result<BasketResponse>.Failure(BasketErrors.ProductNotFound);
 
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId ?? Guid.NewGuid();
@@ -36,9 +36,9 @@ public sealed class AddBasketItemCommandHandler(
             quantity: request.Quantity);
 
         if (addResult.IsFailure)
-            return Result<GetBasketResponse>.Failure(addResult.Error!);
+            return Result<BasketResponse>.Failure(addResult.Error!);
 
         await basketStore.SaveAsync(basket, cancellationToken);
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest));
+        return Result<BasketResponse>.Success(BasketResponse.From(basket, isGuest));
     }
 }

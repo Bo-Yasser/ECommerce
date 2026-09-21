@@ -9,9 +9,9 @@ namespace ECommerce.UseCases.Features.Basket.Commands.ClearBasket;
 public sealed class ClearBasketCommandHandler(
     IBasketStore basketStore,
     ICurrentUserService currentUserService)
-    : IRequestHandler<ClearBasketCommand, Result<GetBasketResponse>>
+    : IRequestHandler<ClearBasketCommand, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(ClearBasketCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(ClearBasketCommand request, CancellationToken cancellationToken)
     {
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId;
@@ -21,12 +21,12 @@ public sealed class ClearBasketCommandHandler(
             var newGuestId = Guid.NewGuid();
             var emptyBasket = Domain.Entities.Basket.CreateEmpty(newGuestId);
 
-            return Result<GetBasketResponse>.Success(GetBasketResponse.From(emptyBasket.Value, isGuest));
+            return Result<BasketResponse>.Success(BasketResponse.From(emptyBasket.Value, isGuest));
         }
 
         await basketStore.DeleteAsync(buyerId.Value, cancellationToken);
 
         var clearedBasket = Domain.Entities.Basket.CreateEmpty(buyerId.Value);
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(clearedBasket.Value, isGuest));
+        return Result<BasketResponse>.Success(BasketResponse.From(clearedBasket.Value, isGuest));
     }
 }

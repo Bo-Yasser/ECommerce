@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Commands.ClearBasket;
 
-public sealed record ClearBasketCommand() : IRequest<Result<GetBasketResponse>>;
+public sealed record ClearBasketCommand() : IRequest<Result<BasketResponse>>;

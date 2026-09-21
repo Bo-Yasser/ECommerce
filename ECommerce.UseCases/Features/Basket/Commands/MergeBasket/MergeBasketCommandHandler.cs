@@ -10,26 +10,26 @@ namespace ECommerce.UseCases.Features.Basket.Commands.MergeBasket;
 public sealed class MergeBasketCommandHandler(
     IBasketStore basketStore,
     ICurrentUserService currentUserService)
-    : IRequestHandler<MergeBasketCommand, Result<GetBasketResponse>>
+    : IRequestHandler<MergeBasketCommand, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(MergeBasketCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(MergeBasketCommand request, CancellationToken cancellationToken)
     {
         // get authenticated userId (buyerId)
         var userId = currentUserService.UserId;
         if (userId is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.AuthenticatedBuyerIdMissing);
+            return Result<BasketResponse>.Failure(BasketErrors.AuthenticatedBuyerIdMissing);
 
         // get the original anonymous buyerId
         var anonymousId = currentUserService.GuestId;
         if (anonymousId is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.GuestBuyerIdRequired);
+            return Result<BasketResponse>.Failure(BasketErrors.AnonymousBuyerRequired);
 
         // get the anonymousBasket with AnonymousBuyerId
         var anonymousBasket = await basketStore.GetAsync(anonymousId.Value, cancellationToken);
         
         // check if anonymousBasket existing and has items
         if (anonymousBasket is null || anonymousBasket.Items.Count == 0)
-            return Result<GetBasketResponse>.Failure(BasketErrors.AnonymousBasketNotFound);
+            return Result<BasketResponse>.Failure(BasketErrors.AnonymousBasketNotFound);
 
         // create a new basket
         var basket = await basketStore.GetOrCreateAsync(userId.Value, cancellationToken);
@@ -37,7 +37,7 @@ public sealed class MergeBasketCommandHandler(
         // merge the new basket with the anonymousBasket
         var mergeResult = basket.MergeFrom(anonymousBasket);
         if (mergeResult.IsFailure)
-            return Result<GetBasketResponse>.Failure(mergeResult.Error!);
+            return Result<BasketResponse>.Failure(mergeResult.Error!);
 
         // save the new basket
         await basketStore.SaveAsync(basket, cancellationToken);
@@ -45,6 +45,6 @@ public sealed class MergeBasketCommandHandler(
         // delete old/anonymous Basket
         await basketStore.DeleteAsync(anonymousId.Value, cancellationToken);
 
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest:false));
+        return Result<BasketResponse>.Success(BasketResponse.From(basket, isGuest:false));
     }
 }

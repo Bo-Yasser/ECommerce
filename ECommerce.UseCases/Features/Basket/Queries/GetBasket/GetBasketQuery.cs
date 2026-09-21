@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Queries.GetBasket;
 
-public record GetBasketQuery() : IRequest<Result<GetBasketResponse>>;
+public sealed record GetBasketQuery() : IRequest<Result<BasketResponse>>;

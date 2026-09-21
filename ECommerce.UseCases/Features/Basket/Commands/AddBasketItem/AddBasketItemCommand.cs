@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Commands.AddBasketItem;
 
-public sealed record AddBasketItemCommand(Guid ProductId, int Quantity) : IRequest<Result<GetBasketResponse>>;
+public sealed record AddBasketItemCommand(Guid ProductId, int Quantity) : IRequest<Result<BasketResponse>>;

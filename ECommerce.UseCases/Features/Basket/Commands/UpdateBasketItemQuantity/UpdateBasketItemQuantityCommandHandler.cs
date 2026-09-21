@@ -10,24 +10,24 @@ namespace ECommerce.UseCases.Features.Basket.Commands.UpdateBasketItemQuantity;
 public sealed class UpdateBasketItemQuantityCommandHandler(
     IBasketStore basketStore,
     ICurrentUserService currentUserService)
-    : IRequestHandler<UpdateBasketItemQuantityCommand, Result<GetBasketResponse>>
+    : IRequestHandler<UpdateBasketItemQuantityCommand, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(UpdateBasketItemQuantityCommand request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(UpdateBasketItemQuantityCommand request, CancellationToken cancellationToken)
     {
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId;
         if (buyerId is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.GuestBuyerIdRequired);
+            return Result<BasketResponse>.Failure(BasketErrors.AnonymousBuyerRequired);
 
         var basket = await basketStore.GetAsync(buyerId.Value, cancellationToken);
         if (basket is null)
-            return Result<GetBasketResponse>.Failure(BasketErrors.BasketNotFound);
+            return Result<BasketResponse>.Failure(BasketErrors.BasketNotFound);
 
         var updateResult = basket.UpdateItemQuantity(request.ProductId, request.Quantity);
         if (updateResult.IsFailure)
-            return Result<GetBasketResponse>.Failure(updateResult.Error!);
+            return Result<BasketResponse>.Failure(updateResult.Error!);
 
         await basketStore.SaveAsync(basket, cancellationToken);
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest));
+        return Result<BasketResponse>.Success(BasketResponse.From(basket, isGuest));
     }
 }

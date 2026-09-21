@@ -1,5 +1,4 @@
 ﻿using ECommerce.Domain.Specifications;
-using ECommerce.UseCases.Specifications;
 using System.Linq.Expressions;
 
 namespace ECommerce.UseCases.Specifications.Orders;
@@ -9,13 +8,13 @@ internal sealed class OrderSpecificationBuilder<T> : SpecificationBuilder<T>, IO
     {
     }
 
-    public ISpecificationBuilder<T> ThenBy(Expression<Func<T, object?>> orderExpression)
+    public IOrderSpecificationBuilder<T> ThenBy(Expression<Func<T, object?>> orderExpression)
     {
         _specification.AddOrder(new OrderExpressionInfo<T>(orderExpression, OrderType.ThenBy));
         return this;
     }
 
-    public ISpecificationBuilder<T> ThenByDescending(Expression<Func<T, object?>> orderExpression)
+    public IOrderSpecificationBuilder<T> ThenByDescending(Expression<Func<T, object?>> orderExpression)
     {
         _specification.AddOrder(new OrderExpressionInfo<T>(orderExpression, OrderType.ThenByDescending));
         return this;
@@ -30,13 +29,13 @@ internal sealed class OrderSpecificationBuilder<T, TResult>
     {
     }
 
-    public ISpecificationBuilder<T, TResult> ThenBy(Expression<Func<T, object?>> orderExpression)
+    public IOrderSpecificationBuilder<T, TResult> ThenBy(Expression<Func<T, object?>> orderExpression)
     {
         _specification.AddOrder(new OrderExpressionInfo<T>(orderExpression, OrderType.ThenBy));
         return this;
     }
 
-    public ISpecificationBuilder<T, TResult> ThenByDescending(Expression<Func<T, object?>> orderExpression)
+    public IOrderSpecificationBuilder<T, TResult> ThenByDescending(Expression<Func<T, object?>> orderExpression)
     {
         _specification.AddOrder(new OrderExpressionInfo<T>(orderExpression, OrderType.ThenByDescending));
         return this;

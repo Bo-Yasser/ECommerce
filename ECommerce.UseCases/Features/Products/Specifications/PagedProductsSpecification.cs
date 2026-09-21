@@ -5,7 +5,7 @@ using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Features.Products.Specifications;
 
-public class PagedProductsSpecification : Specification<Product, GetProductsResponse>
+public sealed class PagedProductsSpecification : Specification<Product, ProductResponse>
 {
     public PagedProductsSpecification(
         string? search = null,
@@ -17,9 +17,10 @@ public class PagedProductsSpecification : Specification<Product, GetProductsResp
         int? pageSize = null)
     {
         var query = Query;
+
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var term = search.Trim();
+            var term = search.Trim().ToLower();
             query.Where(p => p.Name.Contains(term) || p.Description.Contains(term));
         }
 
@@ -33,31 +34,35 @@ public class PagedProductsSpecification : Specification<Product, GetProductsResp
             query.Where(p => p.ProductTypeId == typeId.Value);
         }
 
-        if(sortBy is ProductSortField sortField)
+        if (sortBy is ProductSortField sortField)
         {
             ApplySort(query, sortField, sortDescending);
         }
 
-        if(pageNumber.HasValue && pageSize.HasValue)
+        if (pageNumber.HasValue && pageSize.HasValue)
         {
             var skip = (pageNumber.Value - 1) * pageSize.Value;
             query
                 .Skip(skip)
-                .Take(pageSize.Value)
-                .Select(p => new GetProductsResponse(
-                        p.Id,
-                        p.Name,
-                        p.Description,
-                        p.Price,
-                        p.PictureUrl,
-                        p.ProductType.Name,
-                        p.ProductBrand.Name
-                    ));
+                .Take(pageSize.Value);
         }
+
+        query.Select(p => new ProductResponse(
+            p.Id,
+            p.Sku,
+            p.Name,
+            p.Description,
+            p.Price,
+            p.PictureUrl,
+            p.ProductType.Name,
+            p.ProductBrand.Name,
+            p.Stock.Quantity,
+            p.Stock.Quantity > 0
+        ));
     }
 
     private void ApplySort(
-        ISpecificationBuilder<Product, GetProductsResponse> query,
+        ISpecificationBuilder<Product, ProductResponse> query,
         ProductSortField? sortBy,
         bool sortDescending)
     {
@@ -65,58 +70,37 @@ public class PagedProductsSpecification : Specification<Product, GetProductsResp
         {
             case ProductSortField.Name:
                 if (sortDescending)
-                {
                     query.OrderByDescending(p => p.Name);
-                }
                 else
-                {
                     query.OrderBy(p => p.Name);
-                }
                 break;
 
             case ProductSortField.Price:
                 if (sortDescending)
-                {
-                    query
-                        .OrderByDescending(p => p.Price)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderByDescending(p => p.Price).ThenBy(p => p.Name);
                 else
-                {
-                    query
-                        .OrderBy(p => p.Price)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderBy(p => p.Price).ThenBy(p => p.Name);
                 break;
 
             case ProductSortField.Brand:
                 if (sortDescending)
-                {
-                    query
-                        .OrderByDescending(p => p.ProductBrand.Name)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderByDescending(p => p.ProductBrand.Name).ThenBy(p => p.Name);
                 else
-                {
-                    query
-                        .OrderBy(p => p.ProductBrand.Name)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderBy(p => p.ProductBrand.Name).ThenBy(p => p.Name);
                 break;
 
             case ProductSortField.Type:
                 if (sortDescending)
-                {
-                    query
-                        .OrderByDescending(p => p.ProductType.Name)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderByDescending(p => p.ProductType.Name).ThenBy(p => p.Name);
                 else
-                {
-                    query
-                        .OrderBy(p => p.ProductType.Name)
-                        .ThenBy(p => p.Name);
-                }
+                    query.OrderBy(p => p.ProductType.Name).ThenBy(p => p.Name);
+                break;
+
+            case ProductSortField.CreatedAt:
+                if (sortDescending)
+                    query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Name);
+                else
+                    query.OrderBy(p => p.CreatedAt).ThenBy(p => p.Name);
                 break;
         }
     }

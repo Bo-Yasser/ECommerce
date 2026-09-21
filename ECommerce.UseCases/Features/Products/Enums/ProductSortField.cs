@@ -5,5 +5,6 @@ public enum ProductSortField
     Name,
     Price,
     Brand,
-    Type
+    Type,
+    CreatedAt
 }

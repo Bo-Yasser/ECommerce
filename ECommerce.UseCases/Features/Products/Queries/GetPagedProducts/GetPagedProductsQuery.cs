@@ -14,4 +14,4 @@ public sealed record GetPagedProductsQuery(
         Guid? TypeId = null,
         ProductSortField SortBy = ProductSortField.Name,
         bool SortDescending = false
-    ) : IRequest<Result<PagedResult<GetProductsResponse>>>;
+    ) : IRequest<Result<PagedResult<ProductResponse>>>;

@@ -45,7 +45,7 @@ public sealed class ConfirmEmailCommandHandler(
             });
         }
 
-        var fullName = $"{payload.FirstName} {payload.LastName}".Trim();
+        var fullName = $"{payload.FirstName.Trim()} {payload.LastName.Trim()}";
 
         var result = await identityService.CreateVerifiedUserAsync(
             email: payload.Email,

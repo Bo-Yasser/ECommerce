@@ -66,7 +66,6 @@ public sealed class AddUserAddressCommandHandler(
         foreach(var defaultAddress in defaultAddresses)
         {
             defaultAddress.RemoveDefaultStatus();
-            addressRepository.Update(defaultAddress);
         }
     }
 }

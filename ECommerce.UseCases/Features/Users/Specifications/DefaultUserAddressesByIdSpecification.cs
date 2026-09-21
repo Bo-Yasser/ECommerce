@@ -3,11 +3,12 @@ using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Features.Users.Specifications;
 
-public class DefaultUserAddressesByIdSpecification : Specification<UserAddress>
+public sealed class DefaultUserAddressesByIdSpecification : Specification<UserAddress>
 {
     public DefaultUserAddressesByIdSpecification(Guid userId)
     {
         Query
-            .Where(x => x.UserId == userId && x.IsDefault == true);
+            .Where(x => x.UserId == userId && x.IsDefault == true)
+            .AsTracking();
     }
 }

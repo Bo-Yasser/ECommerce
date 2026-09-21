@@ -42,6 +42,9 @@ public sealed class UserAddressConfiguration : IEntityTypeConfiguration<UserAddr
 
         builder.Property(ua => ua.UserId)
             .IsRequired();
-        builder.HasIndex(ua => ua.UserId);
+
+        builder.HasIndex(ua => new { ua.UserId, ua.IsDefault })
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0 AND [IsDefault] = 1");
     }
 }

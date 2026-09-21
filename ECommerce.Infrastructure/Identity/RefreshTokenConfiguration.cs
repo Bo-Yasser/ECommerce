@@ -1,4 +1,5 @@
 ﻿using ECommerce.Domain.Entities;
+using ECommerce.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +11,8 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
     {
         builder.ToTable("RefreshTokens");
 
+        BaseEntityConfiguration.Configure(builder);
+
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.Token)
@@ -17,11 +20,11 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
             .HasMaxLength(100);
 
         builder.HasIndex(r => r.Token)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
 
         builder.HasOne<ApplicationUser>()
             .WithMany(u => u.RefreshTokens)
-            .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(r => r.UserId);
     }
 }

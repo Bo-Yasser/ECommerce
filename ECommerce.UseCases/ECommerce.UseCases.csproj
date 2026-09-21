@@ -23,9 +23,6 @@
   <ItemGroup>
     <Folder Include="Features\Auth\Specifications\" />
     <Folder Include="Features\Auth\Queries\" />
-    <Folder Include="Features\ProductBrands\Commands\" />
-    <Folder Include="Features\Products\Commands\" />
-    <Folder Include="Features\ProductTypes\Commands\" />
   </ItemGroup>
 
 </Project>

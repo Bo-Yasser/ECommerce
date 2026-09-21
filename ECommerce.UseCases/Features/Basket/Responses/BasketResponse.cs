@@ -1,13 +1,13 @@
 ﻿namespace ECommerce.UseCases.Features.Basket.Responses;
 
-public record GetBasketResponse(
+public sealed record BasketResponse(
     Guid BuyerId,
     IReadOnlyList<BasketItemResponse> Items,
     int TotalItems,
     decimal SubTotal,
     bool IsGuest)
 {
-    public static GetBasketResponse From(Domain.Entities.Basket basket, bool isGuest) =>
+    public static BasketResponse From(Domain.Entities.Basket basket, bool isGuest) =>
         new(
             basket.BuyerId,
             basket.Items

@@ -2,7 +2,7 @@
 
 namespace ECommerce.UseCases.Features.Basket.Commands.AddBasketItem;
 
-public class AddBasketItemCommandValidator : AbstractValidator<AddBasketItemCommand>
+public sealed class AddBasketItemCommandValidator : AbstractValidator<AddBasketItemCommand>
 {
     public AddBasketItemCommandValidator()
     {

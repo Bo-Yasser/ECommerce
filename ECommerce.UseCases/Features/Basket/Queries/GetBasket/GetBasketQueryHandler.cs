@@ -6,17 +6,17 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Queries.GetBasket;
 
-public class GetBasketQueryHandler(
+public sealed class GetBasketQueryHandler(
     IBasketStore basketStore,
-    ICurrentUserService currentUserService) : IRequestHandler<GetBasketQuery, Result<GetBasketResponse>>
+    ICurrentUserService currentUserService) : IRequestHandler<GetBasketQuery, Result<BasketResponse>>
 {
-    public async Task<Result<GetBasketResponse>> Handle(GetBasketQuery request, CancellationToken cancellationToken)
+    public async Task<Result<BasketResponse>> Handle(GetBasketQuery request, CancellationToken cancellationToken)
     {
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId ?? Guid.NewGuid();
 
         var basket = await basketStore.GetOrCreateAsync(buyerId, cancellationToken);
 
-        return Result<GetBasketResponse>.Success(GetBasketResponse.From(basket, isGuest));
+        return Result<BasketResponse>.Success(BasketResponse.From(basket, isGuest));
     }
 }

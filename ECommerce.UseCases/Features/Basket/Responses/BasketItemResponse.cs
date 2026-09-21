@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.UseCases.Features.Basket.Responses;
 
-public record BasketItemResponse(
+public sealed record BasketItemResponse(
     Guid ProductId,
     string ProductName,
     string PictureUrl,

@@ -1,10 +1,11 @@
 ﻿using ECommerce.Domain.Entities;
+using ECommerce.UseCases.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ECommerce.Infrastructure.Interceptors
 {
-    public class AuditInterceptor : SaveChangesInterceptor
+    public class AuditInterceptor(ICurrentUserService currentUserService) : SaveChangesInterceptor
     {
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
             DbContextEventData eventData,
@@ -28,6 +29,7 @@ namespace ECommerce.Infrastructure.Interceptors
             if (dbContext is null) return;
 
             var entries = dbContext.ChangeTracker.Entries<BaseEntity>();
+            var userId = currentUserService.UserId;
             var utcNow = DateTimeOffset.UtcNow;
 
             foreach (var entry in entries)
@@ -35,10 +37,12 @@ namespace ECommerce.Infrastructure.Interceptors
                 if (entry.State == EntityState.Added)
                 {
                     entry.Property(e => e.CreatedAt).CurrentValue = utcNow;
+                    entry.Property(e => e.CreatedById).CurrentValue = userId;
                 }
                 if (entry.State == EntityState.Modified)
                 {
                     entry.Property(e => e.UpdatedAt).CurrentValue = utcNow;
+                    entry.Property(e => e.UpdatedById).CurrentValue = userId;
                 }
             }
         }

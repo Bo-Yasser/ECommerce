@@ -27,8 +27,8 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <returns>The current state of the shopping basket including all items and the total price.</returns>
     /// <response code="200">The basket was retrieved or created successfully.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> Get(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> Get(CancellationToken ct = default)
     {
         var result = await mediator.Send(new GetBasketQuery(), ct);
         if (result.IsFailure)
@@ -50,10 +50,10 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <response code="400">The request payload is invalid (e.g., negative quantity).</response>
     /// <response code="404">The specified product does not exist in the catalog.</response>
     [HttpPost("items")]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> AddItem(
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> AddItem(
         [FromBody] AddBasketItemRequest request,
         CancellationToken ct = default)
     {
@@ -83,10 +83,10 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <response code="400">The request payload is invalid (e.g., zero or negative quantity).</response>
     /// <response code="404">The specified product was not found in the current basket.</response>
     [HttpPut("items/{productId:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> UpdateItemQuantity(
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> UpdateItemQuantity(
         Guid productId,
         [FromBody] UpdateBasketItemQuantityRequest request,
         CancellationToken ct = default)
@@ -114,10 +114,10 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <response code="400">The request payload is invalid.</response>
     /// <response code="404">The specified product was not found in the current basket.</response>
     [HttpDelete("items/{productId:guid}")]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> RemoveItem(
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> RemoveItem(
         Guid productId,
         CancellationToken ct = default)
     {
@@ -140,8 +140,8 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <returns>The updated, empty state of the shopping basket.</returns>
     /// <response code="200">The basket was successfully cleared.</response>
     [HttpDelete]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> Clear(CancellationToken ct = default)
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> Clear(CancellationToken ct = default)
     {
 
         var result = await mediator.Send(new ClearBasketCommand(), ct);
@@ -165,10 +165,10 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <response code="404">The specified anonymous basket could not be found.</response>
     [HttpPost("merge")]
     [Authorize]
-    [ProducesResponseType(typeof(ApiResponse<GetBasketResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<GetBasketResponse>>> Merge(CancellationToken ct = default)
+    public async Task<ActionResult<ApiResponse<BasketResponse>>> Merge(CancellationToken ct = default)
     {
 
         var result = await mediator.Send(new MergeBasketCommand(), ct);

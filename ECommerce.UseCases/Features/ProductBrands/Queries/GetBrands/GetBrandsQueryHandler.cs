@@ -7,11 +7,14 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.ProductBrands.Queries.GetBrands;
 
-public class GetBrandsQueryHandler(IReadRepository<ProductBrand> repository) : IRequestHandler<GetBrandsQuery, Result<IReadOnlyList<GetBrandsResponse>>>
+public sealed class GetBrandsQueryHandler(IReadRepository<ProductBrand> repository) : IRequestHandler<GetBrandsQuery, Result<IReadOnlyList<BrandResponse>>>
 {
-    public async Task<Result<IReadOnlyList<GetBrandsResponse>>> Handle(GetBrandsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<BrandResponse>>> Handle(GetBrandsQuery request, CancellationToken cancellationToken)
     {
-        var brands = await repository.ListAsync(new BrandsListSpecification(), cancellationToken);
-        return Result<IReadOnlyList<GetBrandsResponse>>.Success(brands);
+        var brands = await repository.ListAsync(
+            new BrandsListSpecification(request.Search),
+            cancellationToken);
+
+        return Result<IReadOnlyList<BrandResponse>>.Success(brands);
     }
 }

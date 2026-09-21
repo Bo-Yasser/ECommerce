@@ -4,12 +4,17 @@ using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Features.ProductBrands.Specifications;
 
-public sealed class BrandsListSpecification : Specification<ProductBrand, GetBrandsResponse>
+public sealed class BrandsListSpecification : Specification<ProductBrand, BrandResponse>
 {
-    public BrandsListSpecification()
+    public BrandsListSpecification(string? search = null)
     {
-        Query
+        var query = Query;
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query.Where(type => type.Name.Contains(search.Trim()));
+
+        query
             .OrderBy(brand => brand.Name)
-            .Select(brand => new GetBrandsResponse(brand.Id, brand.Name));
+            .Select(brand => new BrandResponse(brand.Id, brand.Name));
     }
 }

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.ProductBrands.Queries.GetBrands;
 
-public sealed record GetBrandsQuery : IRequest<Result<IReadOnlyList<GetBrandsResponse>>>;
+public sealed record GetBrandsQuery(string? Search) : IRequest<Result<IReadOnlyList<BrandResponse>>>;

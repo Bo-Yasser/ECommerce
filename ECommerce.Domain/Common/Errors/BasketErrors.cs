@@ -7,11 +7,6 @@ public static class BasketErrors
             "Basket.BasketNotFound",
             "Basket was not found.");
 
-    public static readonly Error GuestBuyerIdRequired =
-        Error.Validation(
-            "Basket.GuestBuyerIdRequired",
-            "Guest shoppers must send the X-Buyer-Id header with a client-generated GUID.");
-
     public static readonly Error AuthenticatedBuyerIdMissing =
         Error.Validation(
             "Basket.AuthenticatedBuyerIdMissing",
@@ -62,6 +57,9 @@ public static class BasketErrors
             "Basket.ItemNotFound",
             "The product was not found in the basket.");
 
+    public static readonly Error ProductNotFound =
+        Error.NotFound("Basket.ProductNotFound", "Product Not Found");
+
     public static readonly Error AnonymousBasketNotFound =
         Error.NotFound(
             "Basket.AnonymousBasketNotFound",
@@ -75,5 +73,5 @@ public static class BasketErrors
     public static readonly Error AnonymousBuyerRequired =
         Error.Validation(
             "Basket.AnonymousBuyerRequired",
-            "Anonymous buyer id is required for merge.");
+            "Anonymous buyer id is required.");
 }

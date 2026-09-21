@@ -22,7 +22,7 @@ public sealed class GetUserAddressesQueryHandler(
             return Result<IReadOnlyList<UserAddressResponse>>.Failure(AuthErrors.InvalidCredentials);
 
         var addresses = await addressRepository.ListAsync(
-            new UserAddressesByIdSpecification(currentUser.UserId.Value),
+            new UserAddressesByIdToResponseSpecification(currentUser.UserId.Value),
             cancellationToken);
 
         return Result<IReadOnlyList<UserAddressResponse>>.Success(addresses);

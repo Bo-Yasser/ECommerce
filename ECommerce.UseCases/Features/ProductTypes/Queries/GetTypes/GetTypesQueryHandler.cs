@@ -7,11 +7,14 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.ProductTypes.Queries.GetTypes;
 
-public class GetTypesQueryHandler(IReadRepository<ProductType> repository) : IRequestHandler<GetTypesQuery, Result<IReadOnlyList<GetTypesResponse>>>
+public sealed class GetTypesQueryHandler(IReadRepository<ProductType> repository) : IRequestHandler<GetTypesQuery, Result<IReadOnlyList<TypeResponse>>>
 {
-    public async Task<Result<IReadOnlyList<GetTypesResponse>>> Handle(GetTypesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<TypeResponse>>> Handle(GetTypesQuery request, CancellationToken cancellationToken)
     {
-        var types = await repository.ListAsync(new TypesListSpecification(), cancellationToken);
-        return Result<IReadOnlyList<GetTypesResponse>>.Success(types);
+        var types = await repository.ListAsync(
+            new TypesListSpecification(request.Search),
+            cancellationToken);
+
+        return Result<IReadOnlyList<TypeResponse>>.Success(types);
     }
 }

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.ProductTypes.Queries.GetTypes;
 
-public sealed record GetTypesQuery : IRequest<Result<IReadOnlyList<GetTypesResponse>>>;
+public sealed record GetTypesQuery(string? Search) : IRequest<Result<IReadOnlyList<TypeResponse>>>;

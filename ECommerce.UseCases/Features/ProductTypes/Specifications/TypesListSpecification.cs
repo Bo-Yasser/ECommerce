@@ -4,12 +4,17 @@ using ECommerce.UseCases.Specifications;
 
 namespace ECommerce.UseCases.Features.ProductTypes.Specifications;
 
-public class TypesListSpecification : Specification<ProductType, GetTypesResponse>
+public sealed class TypesListSpecification : Specification<ProductType, TypeResponse>
 {
-    public TypesListSpecification()
+    public TypesListSpecification(string? search = null)
     {
-        Query
+        var query = Query;
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query.Where(type => type.Name.Contains(search.Trim()));
+
+        query
             .OrderBy(type => type.Name)
-            .Select(type => new GetTypesResponse(type.Id, type.Name));
+            .Select(type => new TypeResponse(type.Id, type.Name));
     }
 }

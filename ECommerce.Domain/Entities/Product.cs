@@ -1,13 +1,15 @@
 ﻿using ECommerce.Domain.Common;
 using ECommerce.Domain.Common.Errors;
+using ECommerce.Domain.Entities.StockAggregate;
+using System.Text.RegularExpressions;
 
 namespace ECommerce.Domain.Entities;
 
-public class Product : BaseEntity
+public sealed class Product : BaseEntity
 {
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
-
+    public string Sku { get; private set; } = null!;
     public string PictureUrl { get; private set; } = null!;
     public decimal Price { get; private set; }
 
@@ -18,15 +20,18 @@ public class Product : BaseEntity
     // ProductType One Type include Many Products 1:M
     public Guid ProductTypeId { get; private set; }
     public ProductType ProductType { get; private set; } = null!;
+    public Stock Stock { get; private set; } = null!;
 
 
-    public const int MaxNameLength = 100;
+    public const int MaxNameLength = 200;
     public const int MaxDescriptionLength = 1000;
     public const int MaxPictureUrlLength = 500;
+    public const int MaxSkuLength = 50;
     private Product() { } // important for EF Core
 
     public static Result<Product> Create(
         Guid id,
+        string sku,
         string name,
         string description,
         string pictureUrl,
@@ -37,6 +42,10 @@ public class Product : BaseEntity
         if (id == Guid.Empty)
             return Result<Product>.Failure(ProductErrors.InvalidId);
         var product = new Product() { Id = id };
+
+        var skuResult = product.SetSku(sku);
+        if (skuResult.IsFailure)
+            return Result<Product>.Failure(skuResult.Error!);
 
         var nameResult = product.SetName(name);
         if (nameResult.IsFailure)
@@ -66,6 +75,7 @@ public class Product : BaseEntity
 
     }
     public Result Update(
+        string sku,
         string name,
         string description,
         string pictureUrl,
@@ -81,6 +91,10 @@ public class Product : BaseEntity
         var descriptionResult = SetDescription(description);
         if (descriptionResult.IsFailure)
             return descriptionResult;
+
+        var skuResult = SetSku(sku);
+        if (skuResult.IsFailure)
+            return skuResult;
 
         var pictureUrlResult = SetPictureUrl(pictureUrl);
         if (pictureUrlResult.IsFailure)
@@ -143,6 +157,23 @@ public class Product : BaseEntity
         if (productTypeId == Guid.Empty) return Result.Failure(ProductErrors.ProductTypeRequired);
 
         ProductTypeId = productTypeId;
+        return Result.Success();
+    }
+
+    private Result SetSku(string sku)
+    {
+        if (string.IsNullOrWhiteSpace(sku))
+            return Result.Failure(ProductErrors.SkuRequired);
+
+        var normalizedSku = sku.Trim().ToUpperInvariant();
+
+        if (normalizedSku.Length > MaxSkuLength)
+            return Result.Failure(ProductErrors.SkuLengthExceeded);
+
+        if (!Regex.IsMatch(normalizedSku, "^[A-Z0-9_-]+$"))
+            return Result.Failure(ProductErrors.SkuInvalidFormat);
+
+        Sku = normalizedSku;
         return Result.Success();
     }
 

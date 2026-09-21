@@ -22,7 +22,7 @@ public class GlobalExceptionMiddleware(
             {
                 Status = StatusCodes.Status500InternalServerError,
                 Title = "Internal Server Error",
-                Detail = "An unexcpected error occured. Please try again later."
+                Detail = "An unexpected error occured. Please try again later."
             }
         };
 

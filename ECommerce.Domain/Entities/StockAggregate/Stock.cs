@@ -40,7 +40,7 @@ public sealed class Stock : BaseEntity
 
         if (initialQuantity > 0)
         {
-            var initialTransaction = StockTransaction.Create(
+            var initialTransactionResult = StockTransaction.Create(
                 id: Guid.NewGuid(),
                 stockId: stock.Id,
                 quantityBefore: 0,
@@ -50,8 +50,10 @@ public sealed class Stock : BaseEntity
                 notes: "Initial Stock Creation",
                 referenceId: referenceId);
 
-            if (initialTransaction.IsSuccess)
-                stock._transactions.Add(initialTransaction.Value!);
+            if (initialTransactionResult.IsFailure)
+                return Result<Stock>.Failure(initialTransactionResult.Error!);
+
+            stock._transactions.Add(initialTransactionResult.Value!);
         }
 
         return Result<Stock>.Success(stock);
@@ -70,9 +72,13 @@ public sealed class Stock : BaseEntity
             return Result.Failure(StockErrors.InsufficientStock);
 
         int quantityBefore = Quantity;
-        Quantity -= amount;
+        var newQuantity = Quantity - amount;
 
-        AddTransaction(quantityBefore, -amount, Quantity, type, notes, referenceId);
+        var transactionResult = AddTransaction(quantityBefore, -amount, newQuantity, type, notes, referenceId);
+        if (transactionResult.IsFailure)
+            return Result.Failure(transactionResult.Error!);
+
+        Quantity = newQuantity;
 
         return Result.Success();
     }
@@ -87,9 +93,13 @@ public sealed class Stock : BaseEntity
             return Result.Failure(StockErrors.InvalidAmount);
 
         int quantityBefore = Quantity;
-        Quantity += amount;
+        int newQuantity = Quantity + amount;
 
-        AddTransaction(quantityBefore, amount, Quantity, type, notes, referenceId);
+        var transactionResult = AddTransaction(quantityBefore, amount, newQuantity, type, notes, referenceId);
+        if (transactionResult.IsFailure)
+            return Result.Failure(transactionResult.Error!);
+
+        Quantity = newQuantity;
 
         return Result.Success();
     }
@@ -107,20 +117,24 @@ public sealed class Stock : BaseEntity
 
         int quantityBefore = Quantity;
         int quantityChanged = newQuantity - quantityBefore;
-        Quantity = newQuantity;
 
-        AddTransaction(
+        var transactionResult = AddTransaction(
             quantityBefore,
             quantityChanged,
-            Quantity,
+            newQuantity,
             StockTransactionType.ManualAdjustment,
             notes,
             referenceId);
 
+        if (transactionResult.IsFailure)
+            return Result.Failure(transactionResult.Error!);
+
+        Quantity = newQuantity;
+
         return Result.Success();
     }
 
-    private void AddTransaction(
+    private Result AddTransaction(
         int quantityBefore,
         int quantityChanged,
         int quantityAfter,
@@ -139,10 +153,11 @@ public sealed class Stock : BaseEntity
             referenceId: referenceId
         );
 
-        if (transactionResult.IsSuccess)
-        {
-            _transactions.Add(transactionResult.Value!);
-        }
+        if (transactionResult.IsFailure)
+            return Result.Failure(transactionResult.Error!);
+
+        _transactions.Add(transactionResult.Value!);
+        return Result.Success();
     }
 
     private Result SetProduct(Guid productId)

@@ -5,7 +5,9 @@ public enum StockTransactionType
     Initial = 0,
     Addition = 1,
     OrderDeduction = 2,
-    OrderReturn = 3,
-    DamageLoss = 4,
-    ManualAdjustment = 5
+    OrderCancellation = 3,
+    OrderReturn = 4,
+    DamageLoss = 5,
+    ManualAdjustment = 6
 }
+

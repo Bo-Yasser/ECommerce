@@ -1,15 +1,16 @@
-﻿using ECommerce.API.Contracts.Responses;
-using ECommerce.UseCases.Features.ProductTypes.Responses;
-using ECommerce.UseCases.Features.ProductTypes.Queries.GetTypes;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using ECommerce.API.Constants;
+﻿using ECommerce.API.Constants;
+using ECommerce.API.Contracts.Requests.ProductTypes;
+using ECommerce.API.Contracts.Responses;
 using ECommerce.Domain.Constants;
-using Microsoft.AspNetCore.Authorization;
+using ECommerce.UseCases.Features.ProductTypes.Commands.CreateType;
 using ECommerce.UseCases.Features.ProductTypes.Commands.DeleteType;
 using ECommerce.UseCases.Features.ProductTypes.Commands.UpdateType;
-using ECommerce.UseCases.Features.ProductTypes.Commands.CreateType;
 using ECommerce.UseCases.Features.ProductTypes.Queries.GetTypeById;
+using ECommerce.UseCases.Features.ProductTypes.Queries.GetTypes;
+using ECommerce.UseCases.Features.ProductTypes.Responses;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers;
 
@@ -17,7 +18,7 @@ namespace ECommerce.API.Controllers;
 /// API Controller responsible for managing product types within the catalog.
 /// Provides endpoints for retrieving product types as well as administrative operations (Create, Update, Delete).
 /// </summary>
-public class TypesController(IMediator mediator) : ApiControllerBase
+public class TypesController(ISender sender) : ApiControllerBase
 {
     /// <summary>
     /// Get all types
@@ -35,7 +36,7 @@ public class TypesController(IMediator mediator) : ApiControllerBase
         [FromQuery] GetTypesQuery query,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(query, ct);
+        var result = await sender.Send(query, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -59,7 +60,7 @@ public class TypesController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<TypeResponse>>> GetById(Guid id, CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetTypeByIdQuery(id), ct);
+        var result = await sender.Send(new GetTypeByIdQuery(id), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -90,7 +91,7 @@ public class TypesController(IMediator mediator) : ApiControllerBase
         [FromBody] CreateTypeCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -130,12 +131,14 @@ public class TypesController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdateTypeCommand request,
+        [FromBody] UpdateTypeRequest request,
         CancellationToken ct = default)
     {
-        var command = request with { Id = id };
 
-        var result = await mediator.Send(command, ct);
+        var result = await sender.Send(
+            new UpdateTypeCommand(id, request.Name),
+            ct);
+
         if (result.IsFailure)
             return Problem(result);
 
@@ -166,7 +169,7 @@ public class TypesController(IMediator mediator) : ApiControllerBase
         Guid id,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(new DeleteTypeCommand(id), ct);
+        var result = await sender.Send(new DeleteTypeCommand(id), ct);
         if (result.IsFailure)
             return Problem(result);
 

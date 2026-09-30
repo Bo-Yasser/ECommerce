@@ -10,6 +10,7 @@ using ECommerce.UseCases.Features.Products.Commands.UpdateProduct;
 using ECommerce.UseCases.Features.Products.Commands.DeleteProduct;
 using Microsoft.AspNetCore.Authorization;
 using ECommerce.Domain.Constants;
+using ECommerce.API.Contracts.Requests.Products;
 
 namespace ECommerce.API.Controllers;
 
@@ -17,7 +18,7 @@ namespace ECommerce.API.Controllers;
 /// API Controller responsible for managing the products catalog.
 /// Provides endpoints for retrieving product as well as administrative operations (Create, Update, Delete).
 /// </summary>
-public class ProductsController(IMediator mediator) : ApiControllerBase
+public class ProductsController(ISender sender) : ApiControllerBase
 {
     /// <summary>
     /// Get a paginated list of all products
@@ -35,7 +36,7 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
         [FromQuery] GetPagedProductsQuery query,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(query, ct);
+        var result = await sender.Send(query, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -60,7 +61,7 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<ProductResponse>>> GetById(Guid id, CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetProductByIdQuery(id), ct);
+        var result = await sender.Send(new GetProductByIdQuery(id), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -91,7 +92,7 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
         [FromBody] CreateProductCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -118,9 +119,9 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     /// <response code="200">Product updated successfully</response>
     /// <response code="400">Invalid validation or bad request</response>
     /// <response code="404">Product was not found</response>
-    /// <response code="409">A product with the new name already exists</response>
     /// <response code="401">Unauthorized user</response>
     /// <response code="403">Forbidden. User does not have the required role</response>
+    /// <response code="409">A conflict occurred, such as a name duplication with another product or a concurrency conflict.</response>
     [HttpPut("{id:guid}")]
     [Authorize(Roles = $"{Roles.Admin},{Roles.SuperAdmin}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
@@ -131,12 +132,22 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdateProductCommand request,
+        [FromBody] UpdateProductRequest request,
         CancellationToken ct = default)
     {
-        var command = request with { Id = id };
+        var command = new UpdateProductCommand(
+            id,
+            request.Sku,
+            request.Name,
+            request.Description,
+            request.Price,
+            request.PictureUrl,
+            request.ProductTypeId,
+            request.ProductBrandId,
+            request.RowVersion);
 
-        var result = await mediator.Send(command, ct);
+        var result = await sender.Send(command, ct);
+
         if (result.IsFailure)
             return Problem(result);
 
@@ -147,6 +158,9 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     /// Deletes a product by its Id
     /// </summary>
     /// <param name="id">The unique identifier of the product to delete</param>
+    /// <param name="request">
+    /// The request containing the expected row version of the product.
+    /// </param>
     /// <param name="ct">A CancellationToken used to cancel the request</param>
     /// <returns>
     /// Returns a success message if deleted successfully
@@ -163,11 +177,13 @@ public class ProductsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(
         Guid id,
+        [FromBody] DeleteProductRequest request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(new DeleteProductCommand(id), ct);
+        var result = await sender.Send(new DeleteProductCommand(id, request.RowVersion), ct);
         if (result.IsFailure)
             return Problem(result);
 

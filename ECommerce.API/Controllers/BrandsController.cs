@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Constants;
+using ECommerce.API.Contracts.Requests.ProductBrands;
 using ECommerce.API.Contracts.Responses;
 using ECommerce.Domain.Constants;
 using ECommerce.UseCases.Features.ProductBrands.Commands.CreateBrand;
@@ -17,7 +18,7 @@ namespace ECommerce.API.Controllers;
 /// API Controller responsible for managing product brands within the catalog.
 /// Provides endpoints for retrieving product brands as well as administrative operations (Create, Update, Delete).
 /// </summary>
-public class BrandsController(IMediator mediator) : ApiControllerBase
+public class BrandsController(ISender sender) : ApiControllerBase
 {
     /// <summary>
     /// Get all brands
@@ -35,7 +36,7 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
         [FromQuery] GetBrandsQuery query,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(query, ct);
+        var result = await sender.Send(query, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -60,7 +61,7 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<BrandResponse>>> GetById(Guid id, CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetBrandByIdQuery(id), ct);
+        var result = await sender.Send(new GetBrandByIdQuery(id), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -91,7 +92,7 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
         [FromBody] CreateBrandCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -131,12 +132,13 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdateBrandCommand request,
+        [FromBody] UpdateBrandRequest request,
         CancellationToken ct = default)
     {
-        var command = request with { Id = id };
+        var result = await sender.Send(
+            new UpdateBrandCommand(id, request.Name),
+            ct);
 
-        var result = await mediator.Send(command, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -167,7 +169,7 @@ public class BrandsController(IMediator mediator) : ApiControllerBase
         Guid id,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(new DeleteBrandCommand(id), ct);
+        var result = await sender.Send(new DeleteBrandCommand(id), ct);
         if (result.IsFailure)
             return Problem(result);
 

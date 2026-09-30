@@ -8,7 +8,8 @@ public class ProductType : BaseEntity
     public string Name { get; private set; } = null!;
 
     // ProductType One Type include Many Products 1:M
-    public ICollection<Product> Products { get; private set; } = [];
+    private readonly List<Product> _products = [];
+    public IReadOnlyList<Product> Products => _products.AsReadOnly();
 
     public const int MaxNameLength = 100;
     private ProductType() { }

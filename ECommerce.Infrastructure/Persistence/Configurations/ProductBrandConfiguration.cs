@@ -11,7 +11,10 @@ public sealed class ProductBrandConfiguration : IEntityTypeConfiguration<Product
 
         builder.Property(pb => pb.Name)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(ProductBrand.MaxNameLength);
+
+        builder.Navigation(b => b.Products)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasIndex(pb => pb.Name)
             .IsUnique()

@@ -12,7 +12,13 @@ public sealed class CachedAggregateStore<T>(
     public async Task<T?> GetAsync(string key, CancellationToken ct = default)
     {
         var envelope = await cache.TryGetAsync<CacheEnvelope<T>>(key, ct);
-        return envelope?.Payload;
+
+        if (envelope is null)
+            return null;
+
+        await RefreshExpirationIfNeedAsync(key, envelope, ct);
+        
+        return envelope.Payload;
     }
 
     public async Task<T> GetOrCreateAsync(

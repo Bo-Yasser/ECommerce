@@ -2,6 +2,7 @@
 using ECommerce.Domain.Common.Errors;
 using ECommerce.Domain.Entities.StockAggregate;
 using ECommerce.Domain.Repositories;
+using ECommerce.UseCases.Common.Exceptions;
 using ECommerce.UseCases.Common.Interfaces;
 using ECommerce.UseCases.Features.Stocks.Specifications;
 using MediatR;
@@ -50,6 +51,10 @@ public sealed class AdjustStockCommandHandler(
             await unitOfWork.CommitTransactionAsync(cancellationToken);
 
             return Result.Success();
+        }
+        catch(ConcurrencyConflictException)
+        {
+            return Result.Failure(StockErrors.ConcurrencyConflict);
         }
         catch
         {

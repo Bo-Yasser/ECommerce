@@ -3,4 +3,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Products.Commands.DeleteProduct;
 
-public sealed record DeleteProductCommand(Guid Id) : IRequest<Result>;
+public sealed record DeleteProductCommand(Guid Id, byte[] RowVersion) : IRequest<Result>;

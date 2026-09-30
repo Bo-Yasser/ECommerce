@@ -35,6 +35,9 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
            .HasMaxLength(Product.MaxSkuLength)
            .IsRequired();
 
+        builder.Property(p => p.RowVersion)
+            .IsRowVersion();
+
         builder.HasOne(p => p.ProductBrand)
             .WithMany(pb => pb.Products)
             .HasForeignKey(p => p.ProductBrandId)
@@ -52,6 +55,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => p.Price)
             .HasFilter("[IsDeleted] = 0");
 
+        builder.HasIndex(p => p.Sku)
+            .HasFilter("[IsDeleted] = 0")
+            .IsUnique();
+
         // Override Foreign Key default Indexes to Filtered Indexes
         builder.HasIndex(p => p.ProductBrandId)
              .HasFilter("[IsDeleted] = 0");
@@ -59,9 +66,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => p.ProductTypeId)
             .HasFilter("[IsDeleted] = 0");
 
-        builder.HasIndex(p => p.Sku)
-            .HasFilter("[IsDeleted] = 0")
-            .IsUnique();
+
 
     }
 }

@@ -20,6 +20,7 @@ public sealed class ProductByIdToResponseSpecification : Specification<Product, 
                 product.PictureUrl,
                 product.ProductType.Name,
                 product.ProductBrand.Name,
+                product.RowVersion,
                 product.Stock.Quantity,
                 product.Stock.Quantity > 0
             ));

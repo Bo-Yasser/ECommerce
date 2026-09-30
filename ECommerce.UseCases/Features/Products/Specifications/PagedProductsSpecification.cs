@@ -56,6 +56,7 @@ public sealed class PagedProductsSpecification : Specification<Product, ProductR
             p.PictureUrl,
             p.ProductType.Name,
             p.ProductBrand.Name,
+            p.RowVersion,
             p.Stock.Quantity,
             p.Stock.Quantity > 0
         ));

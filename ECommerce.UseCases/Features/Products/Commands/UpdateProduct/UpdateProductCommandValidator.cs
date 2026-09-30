@@ -35,5 +35,8 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .NotEmpty().WithMessage("SKU is required.")
             .MaximumLength(50).WithMessage("SKU cannot exceed 50 characters.")
             .Matches("^[A-Z0-9_-]+$").WithMessage("SKU can only contain letters, numbers, dashes, and underscores.");
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty().WithMessage("Row Version is required and cannot be empty.");
     }
 }

@@ -34,7 +34,8 @@ public sealed class DeliveryMethodsListSpecification : Specification<DeliveryMet
                 dm.Price,
                 dm.EstimatedDeliveryTime,
                 dm.IsAvailable,
-                dm.DisplayOrder
+                dm.DisplayOrder,
+                dm.RowVersion
             ));
 
     }

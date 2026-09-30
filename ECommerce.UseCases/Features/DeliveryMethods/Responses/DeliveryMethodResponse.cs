@@ -7,4 +7,5 @@ public sealed record DeliveryMethodResponse(
     decimal Price,
     string EstimatedDeliveryTime,
     bool IsAvailable,
-    int DisplayOrder);
+    int DisplayOrder,
+    byte[] RowVersion);

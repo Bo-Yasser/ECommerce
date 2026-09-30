@@ -29,5 +29,8 @@ public sealed class UpdateDeliveryMethodCommandValidator : AbstractValidator<Upd
 
         RuleFor(dm => dm.DisplayOrder)
             .GreaterThanOrEqualTo(0).WithMessage("Display order must be a non-negative integer.");
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty().WithMessage("Row Version is required and cannot be empty.");
     }
 }

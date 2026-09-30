@@ -15,6 +15,7 @@ public sealed class DeliveryMethod : BaseEntity
     public string EstimatedDeliveryTime { get; private set; } = null!;
     public bool IsAvailable { get; private set; }
     public int DisplayOrder { get; private set; }
+    public byte[] RowVersion { get; private set; } = [];
 
     public static Result<DeliveryMethod> Create(
         Guid id,

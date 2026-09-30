@@ -10,4 +10,5 @@ public sealed record UpdateDeliveryMethodCommand(
     string EstimatedDeliveryTime,
     string? Description,
     bool IsAvailable,
-    int DisplayOrder) : IRequest<Result>;
+    int DisplayOrder,
+    byte[] RowVersion) : IRequest<Result>;

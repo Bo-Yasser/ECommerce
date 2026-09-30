@@ -1,5 +1,7 @@
 ﻿using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Persistence.DbContexts;
+using ECommerce.UseCases.Common.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ECommerce.Infrastructure.Repositories;
@@ -20,10 +22,14 @@ public class UnitOfWork(StoreDbContext dbContext) : IUnitOfWork
     {
         try
         {
-            Console.WriteLine(dbContext.ChangeTracker.DebugView.LongView);
             await SaveChangesAsync(ct);
             if (_currentTransaction is not null)
                 await _currentTransaction.CommitAsync(ct);
+        }
+        catch(DbUpdateConcurrencyException ex)
+        {
+            await RollbackTransactionAsync(ct);
+            throw new ConcurrencyConflictException("A concurrency conflict occurred while saving changes.", ex);
         }
         catch
         {

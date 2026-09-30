@@ -55,10 +55,10 @@ public static class AuthErrors
             "Auth.TokenMissing",
             "Authentication token is missing from the request.");
 
-    public static readonly Error TokenInvalid =
+    public static readonly Error InvalidAccessToken =
         Error.UnAuthorized(
-            "Auth.TokenInvalid",
-            "The provided authentication token is invalid or malformed.");
+            "Auth.InvalidAccessToken",
+            "The provided access token is invalid or malformed.");
 
     public static readonly Error TokenExpired =
         Error.UnAuthorized(

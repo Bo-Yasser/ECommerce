@@ -23,9 +23,6 @@ public static class OrderErrors
     public static readonly Error InvalidSubtotal =
          Error.Validation("Order.InvalidSubtotal", "Order subtotal cannot be negative");
 
-    public static readonly Error InvalidStatusTransition =
-        Error.Validation("Order.InvalidStatusTransition", "Cannot transition to the requested order status");
-
     public static readonly Error AlreadyCanceled =
         Error.Conflict("Order.AlreadyCanceled", "Order is already canceled and cannot be modified");
 
@@ -36,9 +33,20 @@ public static class OrderErrors
         Error.Failure("Order.PaymentFailed", "Payment process for this order failed");
 
     public static readonly Error CannotCancel =
-        Error.Failure("Order.CannotCancel", "The order cannot be cancelled! only pending orders can be cancelled.");
-    public static readonly Error InvalidPaymentState = 
-        Error.Conflict("Order.InvalidPaymentState", "Only orders in 'Pending' status can be transitioned to 'Processing'.");
+        Error.Validation("Order.CannotCancel", "The order cannot be cancelled! only pending orders can be cancelled.");
+
+
+    public static readonly Error InvalidStatusTransition =
+        Error.Conflict("Order.InvalidStatusTransition", "Cannot transition to the requested order status");
+
+    public static readonly Error CannotProcess = 
+        Error.Conflict("Order.CannotProcess", "Only orders in 'Pending' status can be transitioned to 'Processing'.");
+
+    public static readonly Error CannotDeliver =
+        Error.Conflict("Order.CannotDeliver", "Only orders in 'Shipped' status can be transitioned to 'Delivered'.");
+    
+    public static readonly Error CannotShip =
+        Error.Conflict("Order.CannotShip", "Only orders in 'Processing' status can be transitioned to 'Shipped'.");
 
     public static readonly Error OnlyCanEditPendingOrder =
         Error.Conflict("Order.OnlyCanEditPendingOrder", "Only orders in 'Pending' status can be edited.");
@@ -48,7 +56,7 @@ public static class OrderErrors
         Error.Validation("Order.OrderItem.InvalidId", "Order Item Id is invalid");
 
     public static readonly Error OrderItemNotFound =
-        Error.NotFound("Order.OrderItemNotFound", "Order item not found");
+        Error.NotFound("Order.OrderItem.OrderItemNotFound", "Order item not found");
 
     public static readonly Error OrderItemProductRequired =
         Error.Validation("Order.OrderItem.ProductRequired", "Product item details are required for the order item");
@@ -56,10 +64,10 @@ public static class OrderErrors
     public static readonly Error OrderItemInvalidQuantity =
          Error.Validation("Order.OrderItem.InvalidQuantity", "Order item quantity must be greater than zero");
 
-    // ProductItemOrdered
-    public static readonly Error ProductItemInvalidId =
-        Error.Validation("Order.ProductItem.InvalidId", "Product ID in order item is invalid");
+    public static readonly Error OrderItemRequired =
+        Error.Validation("Order.OrderItem.OrderItemRequired", "Order item is required");
 
+    // ProductItemOrdered
     public static readonly Error ProductItemNameRequired =
         Error.Validation("Order.ProductItem.NameRequired", "Product name in order item is required");
 
@@ -67,7 +75,7 @@ public static class OrderErrors
         Error.Validation("Order.ProductItem.NameLengthExceeded", $"Product name in order item cannot exceed {ProductItemOrdered.MaxProductNameLength} characters.");
 
     public static readonly Error ProductItemPictureUrlRequired =
-        Error.Validation("Order.ProductItem.PictureUrlRequired", "Product picture URL in order item is required");
+        Error.Validation("Order.ProductItem.PictureUrlRequired", "Product picture URL in order item is required.");
 
     public static readonly Error ProductItemPictureUrlLengthExceeded =
         Error.Validation("Order.ProductItem.PictureUrlLengthExceeded", $"Product picture URL in order item cannot exceed {ProductItemOrdered.MaxPictureUrlLength} characters.");

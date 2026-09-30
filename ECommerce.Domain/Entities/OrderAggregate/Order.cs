@@ -24,8 +24,7 @@ public sealed class Order : BaseEntity
         Guid id,
         Guid userId,
         DeliveryMethod deliveryMethod,
-        UserAddress userAddress,
-        IReadOnlyList<OrderItemPayload> items)
+        UserAddress userAddress)
     {
         var order = new Order() {  Status = OrderStatus.Pending };
 
@@ -41,11 +40,95 @@ public sealed class Order : BaseEntity
         if (shippingAddressResult.IsFailure)
             return Result<Order>.Failure(shippingAddressResult.Error!);
 
-        var itemsResult = order.SetItems(items);
-        if (itemsResult.IsFailure)
-            return Result<Order>.Failure(itemsResult.Error!);
-
         return Result<Order>.Success(order);
+    }
+    public Result AddItem(
+        Guid productId, 
+        ProductItemOrdered itemOrdered,
+        int quantity)
+    {
+        if (Status != OrderStatus.Pending)
+            return Result.Failure(OrderErrors.OnlyCanEditPendingOrder);
+
+        if (itemOrdered is null)
+            return Result.Failure(OrderErrors.OrderItemProductRequired);
+
+        var existingItem = _items.FirstOrDefault(i => i.ProductId == productId);
+        if(existingItem is not null)
+    {
+            var increaseResult = existingItem.IncreaseQuantity(quantity);
+                if (increaseResult.IsFailure)
+                    return Result.Failure(increaseResult.Error!);
+
+            CalculateTotals();
+            return Result.Success();
+            }
+
+        var orderItemResult = OrderItem.Create(Guid.NewGuid(), productId, itemOrdered, quantity);
+            if (orderItemResult.IsFailure)
+                return Result.Failure(orderItemResult.Error!);
+
+        var item = orderItemResult.Value;
+
+            item.SetOrderId(Id);
+            _items.Add(item);
+
+        CalculateTotals();
+
+        return Result.Success();
+    }
+
+    public Result IncreaseItemQuantity(Guid productId, int quantity)
+    {
+        if (Status != OrderStatus.Pending)
+            return Result.Failure(OrderErrors.OnlyCanEditPendingOrder);
+
+        var item = _items.FirstOrDefault(i => i.ProductId == productId);
+        if(item is null) return Result.Failure(OrderErrors.OrderItemNotFound);
+
+
+        var increaseResult = item.IncreaseQuantity(quantity);
+        if (increaseResult.IsFailure) return Result.Failure(increaseResult.Error!);
+
+        CalculateTotals();
+        return Result.Success();
+    }
+
+
+    public Result Cancel()
+    {
+        if (Status != OrderStatus.Pending)
+            return Result.Failure(OrderErrors.CannotCancel);
+
+        Status = OrderStatus.Cancelled;
+        return Result.Success();
+    }
+
+    public Result Process()
+    {
+        if (Status != OrderStatus.Pending)
+            return Result.Failure(OrderErrors.CannotProcess);
+
+        Status = OrderStatus.Processing;
+        return Result.Success();
+    }
+
+    public Result Deliver()
+    {
+        if(Status != OrderStatus.Shipped)
+            return Result.Failure(OrderErrors.CannotDeliver);
+
+        Status = OrderStatus.Delivered;
+        return Result.Success();
+    }
+
+    public Result Ship()
+    {
+        if (Status != OrderStatus.Processing)
+            return Result.Failure(OrderErrors.CannotShip);
+
+        Status = OrderStatus.Shipped;
+        return Result.Success();
     }
 
     private Result SetIdAndUserId(Guid id, Guid userId)
@@ -84,7 +167,7 @@ public sealed class Order : BaseEntity
 
 
         var shippingAddressResult = ShippingAddress.FromUserAddress(address);
-        if(shippingAddressResult.IsFailure)
+        if (shippingAddressResult.IsFailure)
             return Result.Failure(shippingAddressResult.Error!);
 
         ShippingAddress = shippingAddressResult.Value;
@@ -94,75 +177,6 @@ public sealed class Order : BaseEntity
     {
         SubTotal = _items.Sum(item => item.LineTotal);
         Total = SubTotal + ShippingCost;
-    }
-    private Result SetItems(IReadOnlyList<OrderItemPayload> items)
-    {
-        if (items is null || items.Count == 0)
-            return Result.Failure(OrderErrors.EmptyOrderItems);
-
-        var itemDictionary = new Dictionary<Guid, OrderItem>();
-
-        foreach (var payload in items)
-        {
-            if (itemDictionary.TryGetValue(payload.ProductId, out var existingItem))
-            {
-                var increaseResult = existingItem.IncreaseQuantity(payload.Quantity);
-                if (increaseResult.IsFailure)
-                    return Result.Failure(increaseResult.Error!);
-
-                continue;
-            }
-
-            var orderItemResult = OrderItem.Create(Guid.NewGuid(), payload.ProductId, payload.Product, payload.Quantity);
-            if (orderItemResult.IsFailure)
-                return Result.Failure(orderItemResult.Error!);
-
-            itemDictionary.Add(payload.ProductId, orderItemResult.Value);
-        }
-
-        foreach (var item in itemDictionary.Values)
-        {
-            item.SetOrderId(Id);
-            _items.Add(item);
-        }
-
-        CalculateTotals();
-        return Result.Success();
-    }
-
-    public Result IncreaseItemQuantity(Guid productId, int quantity)
-    {
-        if (Status != OrderStatus.Pending)
-            return Result.Failure(OrderErrors.OnlyCanEditPendingOrder);
-
-        var item = _items.FirstOrDefault(i => i.ProductId == productId);
-        if(item is null) return Result.Failure(OrderErrors.OrderItemNotFound);
-
-
-        var increaseResult = item.IncreaseQuantity(quantity);
-        if (increaseResult.IsFailure) return Result.Failure(increaseResult.Error!);
-
-        CalculateTotals();
-        return Result.Success();
-    }
-
-
-    public Result Cancel()
-    {
-        if (Status != OrderStatus.Pending)
-            return Result.Failure(OrderErrors.CannotCancel);
-
-        Status = OrderStatus.Cancelled;
-        return Result.Success();
-    }
-
-    public Result Process()
-    {
-        if (Status != OrderStatus.Pending)
-            return Result.Failure(OrderErrors.InvalidPaymentState);
-
-        Status = OrderStatus.Processing;
-        return Result.Success();
     }
 
 }

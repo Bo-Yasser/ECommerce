@@ -7,16 +7,18 @@ namespace ECommerce.Domain.Entities;
 public class Basket
 {
     public Guid BuyerId { get; private set; }
-    public List<BasketItem> Items { get; private set; } = [];
 
-    public int TotalItems => Items.Sum(item => item.Quantity);
-    public decimal SubTotal => Items.Sum(item => item.LineTotal);
+    private readonly List<BasketItem> _items = [];
+    public IReadOnlyList<BasketItem> Items => _items.AsReadOnly();
+
+    public int TotalItems => _items.Sum(item => item.Quantity);
+    public decimal SubTotal => _items.Sum(item => item.LineTotal);
 
     [JsonConstructor]
-    private Basket(Guid buyerId, List<BasketItem> items)
+    private Basket(Guid buyerId, IReadOnlyList<BasketItem> items)
     {
         BuyerId = buyerId;
-        Items = items;
+        _items = items.ToList();
     }
 
     public static Result<Basket> Create(
@@ -73,7 +75,7 @@ public class Basket
             return Result.Failure(createResult.Error!);
         }
 
-        Items.Add(createResult.Value);
+        _items.Add(createResult.Value);
         return Result.Success();
     }
     public Result RemoveItem(Guid productId)
@@ -83,7 +85,7 @@ public class Basket
         if (existingItemResult.IsFailure)
             return Result.Failure(existingItemResult.Error!);
 
-        Items.Remove(existingItemResult.Value);
+        _items.Remove(existingItemResult.Value);
         return Result.Success();
 
     }
@@ -103,22 +105,39 @@ public class Basket
 
         foreach(var item in other.Items)
         {
-            var mergeResult = AddItem(
-                productId: item.ProductId,
-                productName: item.ProductName,
-                pictureUrl: item.PictureUrl,
-                unitPrice: item.UnitPrice,
-                quantity: item.Quantity);
+            var existingItemResult = GetItem(item.ProductId);
+            if (existingItemResult.IsFailure)
+            {
+                var createItemResult = BasketItem.Create(
+                    item.ProductId,
+                    item.ProductName,
+                    item.PictureUrl,
+                    item.UnitPrice,
+                    item.Quantity);
+                if (createItemResult.IsFailure)
+                    return Result.Failure(createItemResult.Error!);
 
-            if (mergeResult.IsFailure) return mergeResult;
+                _items.Add(createItemResult.Value);
+                continue;
+            }
+
+            var mergedQuantity = Math.Min(
+                existingItemResult.Value.Quantity + item.Quantity,
+                BasketItem.MaxQuantity);
+
+            var result = existingItemResult.Value.SetQuantity(mergedQuantity);
+            if (result.IsFailure)
+                return result;
         }
         return Result.Success();
     }
-    public void Clear() => Items.Clear(); 
+    public void Clear() => _items.Clear();
 
+    public int GetItemQuantity(Guid productId)
+        => _items.FirstOrDefault(item => item.ProductId == productId)?.Quantity ?? 0;
     private Result<BasketItem> GetItem(Guid productId)
     {
-        var item = Items.FirstOrDefault(item => item.ProductId == productId);
+        var item = _items.FirstOrDefault(item => item.ProductId == productId);
         if (item is null)
             return Result<BasketItem>.Failure(BasketErrors.ItemNotFound);
 

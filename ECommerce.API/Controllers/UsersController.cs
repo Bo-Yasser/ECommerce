@@ -15,7 +15,7 @@ namespace ECommerce.API.Controllers;
 /// Manages operations related to the currently authenticated user's profile and addresses.
 /// </summary>
 [Authorize]
-public class UsersController(IMediator mediator) : ApiControllerBase
+public class UsersController(ISender sender) : ApiControllerBase
 {
     /// <summary>
     /// Retrieves the profile details of the currently authenticated user.
@@ -29,7 +29,7 @@ public class UsersController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<UserProfileResponse>>> GetCurrentUser(CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetCurrentUserQuery(), ct);
+        var result = await sender.Send(new GetCurrentUserQuery(), ct);
         if(result.IsFailure)
             return Problem(result);
 
@@ -48,7 +48,7 @@ public class UsersController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<UserAddressResponse>>>> GetUserAddresses(CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetUserAddressesQuery(), ct);
+        var result = await sender.Send(new GetUserAddressesQuery(), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -72,7 +72,7 @@ public class UsersController(IMediator mediator) : ApiControllerBase
         [FromBody] AddUserAddressCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 

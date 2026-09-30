@@ -18,7 +18,7 @@ namespace ECommerce.API.Controllers;
 /// Provides administrative endpoints for retrieving stock levels, transaction histories, and performing stock adjustments.
 /// </summary>
 [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Admin}")]
-public class StocksController(IMediator mediator) : ApiControllerBase
+public class StocksController(ISender sender) : ApiControllerBase
 {
     /// <summary>
     /// Get a paginated list of all stocks
@@ -41,7 +41,7 @@ public class StocksController(IMediator mediator) : ApiControllerBase
         [FromQuery] GetPagedStocksQuery request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -61,21 +61,25 @@ public class StocksController(IMediator mediator) : ApiControllerBase
     /// <response code="400">Invalid validation or bad request</response>
     /// <response code="401">Unauthorized user</response>
     /// <response code="403">Forbidden. User does not have the required role</response>
-    /// <response code="404">Stock or product was not found</response>
     [HttpGet("/api/v{version:apiVersion}/products/{productId:guid}/stock/transactions")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<StockTransactionResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<StockTransactionResponse>>>> PagedProductStockTransactions(
         [FromRoute] Guid productId,
-        [FromQuery] GetPagedStockTransactionsQuery request,
+        [FromQuery] GetPagedStockTransactionsRequest request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(
-            request with { ProductId = productId },
-            ct);
+        var query = new GetPagedStockTransactionsQuery(
+            productId,
+            request.PageNumber,
+            request.PageSize,
+            request.Filters,
+            request.SortBy,
+            request.SortDescending);
+
+        var result = await sender.Send(query, ct);
 
         if (result.IsFailure)
             return Problem(result);
@@ -106,7 +110,7 @@ public class StocksController(IMediator mediator) : ApiControllerBase
         [FromRoute] Guid productId,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetStockByProductIdQuery(productId), ct);
+        var result = await sender.Send(new GetStockByProductIdQuery(productId), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -127,18 +131,20 @@ public class StocksController(IMediator mediator) : ApiControllerBase
     /// <response code="401">Unauthorized user</response>
     /// <response code="403">Forbidden. User does not have the required role</response>
     /// <response code="404">Stock for the specified product was not found</response>
+    /// <response code="409">The stock could not be adjusted because of a concurrency conflict.</response>
     [HttpPost("/api/v{version:apiVersion}/products/{productId:guid}/stock/adjustment")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AdjustStockByProductId(
         [FromRoute] Guid productId,
         [FromBody] AdjustStockRequest request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(
+        var result = await sender.Send(
             new AdjustStockCommand(productId, request.NewQuantity, request.Notes, request.RowVersion),
             ct);
 

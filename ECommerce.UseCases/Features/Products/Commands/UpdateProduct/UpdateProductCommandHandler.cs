@@ -40,6 +40,13 @@ public sealed class UpdateProductCommandHandler(
         if (!typeExists)
             return Result.Failure(ProductErrors.ProductTypeNotFound);
 
+        // check if the product sku exist
+        var existingProductSku = await productsRepository.AnyAsync(
+            new ProductBySkuSpecificaiton(request.Sku, request.Id),
+            cancellationToken);
+        if (existingProductSku)
+            return Result.Failure(ProductErrors.SkuAlreadyExists);
+
         // check if the product name exist
         var exisitingProductName = await productsRepository.AnyAsync(
             new ProductByNameSpecification(request.Name, request.Id),
@@ -50,19 +57,19 @@ public sealed class UpdateProductCommandHandler(
         await unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-        var productResult = exisitingProduct.Update(
-            request.Sku,
-            request.Name,
-            request.Description,
-            request.PictureUrl,
-            request.Price,
-            request.ProductBrandId,
-            request.ProductTypeId);
+            var productResult = exisitingProduct.Update(
+                request.Sku,
+                request.Name,
+                request.Description,
+                request.PictureUrl,
+                request.Price,
+                request.ProductBrandId,
+                request.ProductTypeId);
 
-        if (productResult.IsFailure)
+            if (productResult.IsFailure)
             {
                 await unitOfWork.RollbackTransactionAsync(cancellationToken);
-            return Result.Failure(productResult.Error!);
+                return Result.Failure(productResult.Error!);
             }
 
             await unitOfWork.CommitTransactionAsync(cancellationToken);

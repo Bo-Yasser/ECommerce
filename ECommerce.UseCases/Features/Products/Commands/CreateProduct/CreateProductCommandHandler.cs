@@ -30,11 +30,17 @@ public sealed class CreateProductCommandHandler(
         if (!typeExists)
             return Result<Guid>.Failure(ProductErrors.ProductTypeNotFound);
 
+        var existingProductSku = await productsRepository.AnyAsync(
+            new ProductBySkuSpecificaiton(request.Sku),
+            cancellationToken);
+        if (existingProductSku)
+            return Result<Guid>.Failure(ProductErrors.SkuAlreadyExists);
+
         var existingProductName = await productsRepository.AnyAsync(
             new ProductByNameSpecification(request.Name),
             cancellationToken);
         if (existingProductName)
-            return Result<Guid>.Failure(ProductErrors.AlreadyExists);
+            return Result<Guid>.Failure(ProductErrors.NameAlreadyExists);
 
 
         var productId = Guid.NewGuid();

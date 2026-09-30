@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Entities.StockAggregate;
 using ECommerce.UseCases.Features.Stocks.Enums;
+using ECommerce.UseCases.Features.Stocks.Models;
 using ECommerce.UseCases.Features.Stocks.Responses;
 using ECommerce.UseCases.Specifications;
 
@@ -9,9 +10,8 @@ public sealed class PagedStockTransactionsByProductIdSpecification : Specificati
 {
     public PagedStockTransactionsByProductIdSpecification(
         Guid productId,
-        string? search = null,
-        Guid? referenceId = null,
-        StockTransactionSortField? sortBy = null,
+        StockTransactionFilters? filters,
+        StockTransactionSortField sortBy = StockTransactionSortField.Reference,
         bool sortDescending = false,
         int? pageNumber = null,
         int? pageSize = null)
@@ -20,23 +20,9 @@ public sealed class PagedStockTransactionsByProductIdSpecification : Specificati
 
         query.Where(st => st.Stock.ProductId == productId);
 
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var term = search.Trim().ToLower();
-            query.Where(st =>
-                st.Type.ToString().Contains(term)
-                || (st.Notes != null && st.Notes.Contains(term)));
-        }
+        query = query.ApplyFilters(filters);
 
-        if (referenceId.HasValue)
-        {
-            query.Where(st => st.ReferenceId == referenceId.Value);
-        }
-        
-        if(sortBy is StockTransactionSortField sortField)
-        {
-            ApplySort(query, sortField, sortDescending);
-        }
+        ApplySort(query, sortBy, sortDescending);
 
         if(pageNumber.HasValue && pageSize.HasValue)
         {
@@ -55,12 +41,11 @@ public sealed class PagedStockTransactionsByProductIdSpecification : Specificati
             st.Type.ToString(),
             st.ReferenceId,
             st.Notes));
-
     }
 
     private void ApplySort(
         ISpecificationBuilder<StockTransaction, StockTransactionResponse> query,
-        StockTransactionSortField? sortBy,
+        StockTransactionSortField sortBy,
         bool sortDescending)
     {
         switch (sortBy)

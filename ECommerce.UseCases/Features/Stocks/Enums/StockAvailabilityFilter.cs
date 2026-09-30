@@ -1,6 +1,6 @@
 ﻿namespace ECommerce.UseCases.Features.Stocks.Enums;
 
-public enum StockFilter
+public enum StockAvailabilityFilter
 {
     InStock = 1,
     LowStock = 2,

@@ -13,5 +13,10 @@ public sealed class GetPagedStocksQueryValidator : AbstractValidator<GetPagedSto
         RuleFor(s => s.PageSize)
             .InclusiveBetween(1, 1000)
             .WithMessage("Page size must be between 1 and 1000.");
+
+        RuleFor(s => s.SortBy)
+            .IsInEnum()
+            .WithErrorCode("Stocks.SortBy.Invalid")
+            .WithMessage("Invalid stock sort field.");
     }
 }

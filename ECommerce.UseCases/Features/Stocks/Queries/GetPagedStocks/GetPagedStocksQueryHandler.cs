@@ -13,15 +13,10 @@ public sealed class GetPagedStocksQueryHandler(IReadRepository<Stock> repository
 {
     public async Task<Result<PagedResult<StockResponse>>> Handle(GetPagedStocksQuery request, CancellationToken cancellationToken)
     {
-        var countSpec = new PagedStocksSpecification(
-            search: request.Search,
-            productId: request.ProductId,
-            filter: request.Status);
+        var countSpec = new StocksFilterSpecification(request.Filters);
 
         var listSpec = new PagedStocksSpecification(
-            search: request.Search,
-            productId: request.ProductId,
-            filter: request.Status,
+            filters: request.Filters,
             sortBy: request.SortBy,
             sortDescending: request.SortDescending,
             pageNumber: request.PageNumber,

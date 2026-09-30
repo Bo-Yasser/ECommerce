@@ -17,5 +17,10 @@ public sealed class GetPagedStockTransactionsQueryValidator : AbstractValidator<
         RuleFor(st => st.PageSize)
             .InclusiveBetween(1, 1000)
             .WithMessage("Page size must be between 1 and 1000.");
+
+        RuleFor(query => query.SortBy)
+            .IsInEnum()
+            .WithErrorCode("StockTransactions.SortBy.Invalid")
+            .WithMessage("Invalid Stock Transaction sort field.");
     }
 }

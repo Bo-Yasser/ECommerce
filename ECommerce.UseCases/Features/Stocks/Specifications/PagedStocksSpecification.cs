@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Entities.StockAggregate;
 using ECommerce.UseCases.Features.Stocks.Enums;
+using ECommerce.UseCases.Features.Stocks.Models;
 using ECommerce.UseCases.Features.Stocks.Responses;
 using ECommerce.UseCases.Specifications;
 
@@ -8,36 +9,17 @@ namespace ECommerce.UseCases.Features.Stocks.Specifications;
 public sealed class PagedStocksSpecification : Specification<Stock, StockResponse>
 {
     public PagedStocksSpecification(
-        string? search = null,
-        Guid? productId = null,
-        StockFilter? filter = StockFilter.All,
-        StockSortField? sortBy = StockSortField.ProductName,
+        StockFilters? filters = null,
+        StockSortField sortBy = StockSortField.ProductName,
         bool sortDescending = false,
         int? pageNumber = null,
         int? pageSize = null)
     {
         var query = Query;
 
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var term = search.Trim().ToLower();
-            query.Where(s => s.Product.Sku.Contains(term)
-                        || s.Product.Name.Contains(term)
-                        || s.Product.Description.Contains(term));
-        }
+        query = query.ApplyFilters(filters);
 
-        if (productId.HasValue)
-            query.Where(s => s.ProductId == productId.Value);
-
-        if(filter is StockFilter statusField)
-        {
-            ApplyStatusFilter(query, statusField);
-        }
-
-        if (sortBy is StockSortField sortField)
-        {
-            ApplySort(query, sortField, sortDescending);
-        }
+        ApplySort(query, sortBy, sortDescending);
 
         if(pageNumber.HasValue && pageSize.HasValue)
         {
@@ -59,7 +41,7 @@ public sealed class PagedStocksSpecification : Specification<Stock, StockRespons
 
     private void ApplySort(
         ISpecificationBuilder<Stock, StockResponse> query,
-        StockSortField? sortBy,
+        StockSortField sortBy,
         bool sortDescending)
     {
         switch (sortBy)
@@ -76,7 +58,7 @@ public sealed class PagedStocksSpecification : Specification<Stock, StockRespons
                 {
                     query.OrderBy(s => s.Product.Name)
                         .ThenBy(s => s.CreatedAt)
-                        .ThenByDescending(s => s.Id);
+                        .ThenBy(s => s.Id);
                 }
                 break;
 
@@ -93,30 +75,6 @@ public sealed class PagedStocksSpecification : Specification<Stock, StockRespons
                         .ThenBy(s => s.Product.Name)
                         .ThenBy(s => s.Id);
                 }
-                break;
-        }
-    }
-
-    private void ApplyStatusFilter(
-        ISpecificationBuilder<Stock, StockResponse> query,
-        StockFilter filter)
-    {
-        switch (filter)
-        {
-            case StockFilter.InStock:
-                query.Where(s => s.Quantity > 0);
-                break;
-
-            case StockFilter.LowStock:
-                query.Where(s => s.Quantity > 0 && s.Quantity <= Stock.LowStockThreshold);
-                break;
-
-            case StockFilter.SufficientStock:
-                query.Where(s => s.Quantity > Stock.LowStockThreshold);
-                break;
-
-            case StockFilter.OutOfStock:
-                query.Where(s => s.Quantity == 0);
                 break;
         }
     }

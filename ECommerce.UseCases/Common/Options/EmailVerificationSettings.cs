@@ -6,5 +6,5 @@ public sealed class EmailVerificationSettings
     public int CodeLength { get; set; } = 6;
     public int ExpirationMinutes { get; set; } = 15;
     public int MaxFailedAttempts { get; set; } = 5;
-    public int MaxTimeToSendOtp { get; set; } = 1;
+    public int MaxMinutesToSendOtp { get; set; } = 1;
 }

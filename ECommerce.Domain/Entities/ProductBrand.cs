@@ -6,8 +6,9 @@ namespace ECommerce.Domain.Entities;
 public class ProductBrand : BaseEntity
 {
     public string Name { get; private set; } = null!;
-    // ProductType One Type include Many Products 1:M
-    public ICollection<Product> Products { get; private set; } = [];
+    // ProductBrand One Type include Many Products 1:M
+    private readonly List<Product> _products = [];
+    public IReadOnlyList<Product> Products => _products.AsReadOnly();
 
 
     public const int MaxNameLength = 100;

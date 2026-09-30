@@ -17,6 +17,7 @@ public sealed class Order : BaseEntity
     public decimal SubTotal { get; private set; } // total without shipping cost
     public decimal ShippingCost { get; private set; }
     public decimal Total { get; private set; } // total with shipping cost
+    public byte[] RowVersion { get; private set; } = [];
 
     private Order() { }
 
@@ -55,23 +56,23 @@ public sealed class Order : BaseEntity
 
         var existingItem = _items.FirstOrDefault(i => i.ProductId == productId);
         if(existingItem is not null)
-    {
+        {
             var increaseResult = existingItem.IncreaseQuantity(quantity);
-                if (increaseResult.IsFailure)
-                    return Result.Failure(increaseResult.Error!);
+            if (increaseResult.IsFailure)
+                return Result.Failure(increaseResult.Error!);
 
             CalculateTotals();
             return Result.Success();
-            }
+        }
 
         var orderItemResult = OrderItem.Create(Guid.NewGuid(), productId, itemOrdered, quantity);
-            if (orderItemResult.IsFailure)
-                return Result.Failure(orderItemResult.Error!);
+        if (orderItemResult.IsFailure)
+            return Result.Failure(orderItemResult.Error!);
 
         var item = orderItemResult.Value;
 
-            item.SetOrderId(Id);
-            _items.Add(item);
+        item.SetOrderId(Id);
+        _items.Add(item);
 
         CalculateTotals();
 

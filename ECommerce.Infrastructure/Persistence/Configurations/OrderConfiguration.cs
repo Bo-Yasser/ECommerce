@@ -38,6 +38,9 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(o => o.RowVersion)
+            .IsRowVersion();
+
         builder.ComplexProperty(o => o.DeliveryMethod, dm =>
         {
             dm.Property(d => d.DeliveryMethodName)

@@ -51,9 +51,15 @@ public static class OrderErrors
     public static readonly Error OnlyCanEditPendingOrder =
         Error.Conflict("Order.OnlyCanEditPendingOrder", "Only orders in 'Pending' status can be edited.");
 
+    public static readonly Error ConcurrencyConflict =
+        Error.Conflict("Order.ConcurrencyConflict", "Order was updated by another process. Please refresh and try again.");
+
     // OrderItem
     public static readonly Error OrderItemInvalidId =
         Error.Validation("Order.OrderItem.InvalidId", "Order Item Id is invalid");
+
+    public static readonly Error ProductItemInvalidId =
+        Error.Validation("Order.ProductItem.InvalidId", "Product Id in order item is invalid");
 
     public static readonly Error OrderItemNotFound =
         Error.NotFound("Order.OrderItem.OrderItemNotFound", "Order item not found");
@@ -132,5 +138,21 @@ public static class OrderErrors
         Error.Validation("Order.ShippingAddress.InvalidPostalCode", "Postal code is required and must be within valid length limits.");
 
     public static readonly Error ShippingAddressNotOwned =
-    Error.Validation("Order.ShippingAddress.NotOwned", "The shipping address does not belong to this user.");
+        Error.Validation("Order.ShippingAddress.NotOwned", "The shipping address does not belong to this user.");
+
+    // Auth
+    public static readonly Error TokenMissing =
+        Error.UnAuthorized("Order.Auth.TokenMissing", "Authentication token is missing from the request.");
+
+    // Basket
+    public static readonly Error BasketNotFound =
+        Error.NotFound("Order.Basket.BasketNotFound", "Basket was not found.");
+
+    public static readonly Error BasketEmpty =
+        Error.Validation("Order.Basket.BasketEmpty", "Basket is empty.");
+
+    // Stock
+    public static readonly Error StockNotFound =
+        Error.NotFound("Order.Stock.StockNotFound", "Stock information for the specified product was not found.");
+
 }

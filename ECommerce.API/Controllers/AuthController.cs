@@ -21,7 +21,7 @@ namespace ECommerce.API.Controllers;
 /// <summary>
 /// Manages authentication, registration, and session control endpoints.
 /// </summary>
-public class AuthController(IMediator mediator, IOptions<JwtSettings> options) : ApiControllerBase
+public class AuthController(ISender sender, IOptions<JwtSettings> options) : ApiControllerBase
 {
     private readonly JwtSettings _jwtSettings = options.Value;
 
@@ -43,7 +43,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
         [FromBody] RegisterCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -69,7 +69,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
         [FromBody] ConfirmEmailCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -95,7 +95,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
         [FromBody] ResendOtpCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -119,7 +119,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
         [FromBody] LoginCommand request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(request, ct);
+        var result = await sender.Send(request, ct);
 
         if (result.IsFailure)
             return Problem(result);
@@ -152,7 +152,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
         if (string.IsNullOrWhiteSpace(token))
             return Problem(Result.Failure(AuthErrors.TokenMissing));
 
-        var result = await mediator.Send(new RefreshTokenCommand(token), ct);
+        var result = await sender.Send(new RefreshTokenCommand(token), ct);
 
         if (result.IsFailure)
         {
@@ -186,7 +186,7 @@ public class AuthController(IMediator mediator, IOptions<JwtSettings> options) :
 
         if (!string.IsNullOrWhiteSpace(token))
         {
-            await mediator.Send(new RevokeTokenCommand(token), ct);
+            await sender.Send(new RevokeTokenCommand(token), ct);
         }
 
         DeleteRefreshTokenCookie();

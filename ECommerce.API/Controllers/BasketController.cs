@@ -17,7 +17,7 @@ namespace ECommerce.API.Controllers;
 /// <summary>
 /// Manages the shopping basket operations. Supports both guest sessions (via cookies/headers) and authenticated user sessions.
 /// </summary>
-public class BasketController(IMediator mediator) : ApiControllerBase
+public class BasketController(ISender sender) : ApiControllerBase
 {
     private const string GuestSessionCookieName = "guest-session";
     /// <summary>
@@ -30,7 +30,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<BasketResponse>>> Get(CancellationToken ct = default)
     {
-        var result = await mediator.Send(new GetBasketQuery(), ct);
+        var result = await sender.Send(new GetBasketQuery(), ct);
         if (result.IsFailure)
             return Problem(result);
 
@@ -57,7 +57,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
         [FromBody] AddBasketItemRequest request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(
+        var result = await sender.Send(
             new AddBasketItemCommand(request.ProductId, request.Quantity),
             ct);
 
@@ -81,7 +81,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <returns>The updated state of the shopping basket after adjusting the quantity.</returns>
     /// <response code="200">The item quantity was successfully updated.</response>
     /// <response code="400">The request payload is invalid (e.g., zero or negative quantity).</response>
-    /// <response code="404">The specified product was not found in the current basket.</response>
+    /// <response code="404">The specified product does not exist or is not present in the current basket.</response>
     [HttpPut("items/{productId:guid}")]
     [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -91,7 +91,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
         [FromBody] UpdateBasketItemQuantityRequest request,
         CancellationToken ct = default)
     {
-        var result = await mediator.Send(
+        var result = await sender.Send(
             new UpdateBasketItemQuantityCommand(productId, request.Quantity),
             ct);
 
@@ -122,7 +122,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
         CancellationToken ct = default)
     {
 
-        var result = await mediator.Send(new RemoveBasketItemCommand(productId), ct);
+        var result = await sender.Send(new RemoveBasketItemCommand(productId), ct);
 
         if (result.IsFailure)
             return Problem(result);
@@ -144,7 +144,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     public async Task<ActionResult<ApiResponse<BasketResponse>>> Clear(CancellationToken ct = default)
     {
 
-        var result = await mediator.Send(new ClearBasketCommand(), ct);
+        var result = await sender.Send(new ClearBasketCommand(), ct);
 
         if (result.IsFailure)
             return Problem(result);
@@ -173,7 +173,7 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     public async Task<ActionResult<ApiResponse<MergeBasketResponse>>> Merge(CancellationToken ct = default)
     {
 
-        var result = await mediator.Send(new MergeBasketCommand(), ct);
+        var result = await sender.Send(new MergeBasketCommand(), ct);
 
         if (result.IsFailure)
             return Problem(result);

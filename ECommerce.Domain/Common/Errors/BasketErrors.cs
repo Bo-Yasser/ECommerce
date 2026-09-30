@@ -74,4 +74,10 @@ public static class BasketErrors
         Error.Validation(
             "Basket.AnonymousBuyerRequired",
             "Anonymous buyer id is required.");
+
+    public static readonly Error OutOfStock =
+        Error.Validation("Basket.Stock.OutOfStock", "Product is out of stock.");
+
+    public static readonly Error InsufficientStock =
+        Error.Validation("Basket.Stock.InsufficientStock", "Insufficient stock quantity available.");
 }

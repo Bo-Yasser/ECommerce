@@ -13,15 +13,13 @@ public sealed class GetPagedStockTransactionsQueryHandler(
 {
     public async Task<Result<PagedResult<StockTransactionResponse>>> Handle(GetPagedStockTransactionsQuery request, CancellationToken cancellationToken)
     {
-        var countSpec = new PagedStockTransactionsByProductIdSpecification(
+        var countSpec = new StockTransactionsFilterSpecification(
             productId: request.ProductId,
-            search: request.Search,
-            referenceId: request.ReferenceId);
+            filters: request.Filters);
 
         var listSpec = new PagedStockTransactionsByProductIdSpecification(
             productId: request.ProductId,
-            search: request.Search,
-            referenceId: request.ReferenceId,
+            filters: request.Filters,
             sortBy: request.SortBy,
             sortDescending:request.SortDescending,
             pageNumber: request.PageNumber,

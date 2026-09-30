@@ -161,14 +161,16 @@ public class BasketController(IMediator mediator) : ApiControllerBase
     /// <param name="ct">A cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>The updated state of the authenticated user's basket after the merge operation.</returns>
     /// <response code="200">The anonymous basket was successfully merged into the target basket.</response>
-    /// <response code="400">The request payload is invalid.</response>
+    /// <response code="401">Unauthorized user</response>
+    /// <response code="400">The merge request cannot be processed due to an invalid basket or buyer state.</response>
     /// <response code="404">The specified anonymous basket could not be found.</response>
     [HttpPost("merge")]
     [Authorize]
-    [ProducesResponseType(typeof(ApiResponse<BasketResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<MergeBasketResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ApiResponse<BasketResponse>>> Merge(CancellationToken ct = default)
+    public async Task<ActionResult<ApiResponse<MergeBasketResponse>>> Merge(CancellationToken ct = default)
     {
 
         var result = await mediator.Send(new MergeBasketCommand(), ct);

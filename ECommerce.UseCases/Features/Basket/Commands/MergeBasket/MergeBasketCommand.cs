@@ -4,4 +4,4 @@ using MediatR;
 
 namespace ECommerce.UseCases.Features.Basket.Commands.MergeBasket;
 
-public sealed record MergeBasketCommand() : IRequest<Result<BasketResponse>>;
+public sealed record MergeBasketCommand() : IRequest<Result<MergeBasketResponse>>;

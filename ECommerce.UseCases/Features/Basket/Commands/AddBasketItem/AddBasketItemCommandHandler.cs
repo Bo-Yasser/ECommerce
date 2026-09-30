@@ -18,15 +18,22 @@ public sealed class AddBasketItemCommandHandler(
     public async Task<Result<BasketResponse>> Handle(AddBasketItemCommand request, CancellationToken cancellationToken)
     {
         var product = await productRepository.FirstOrDefaultAsync(
-            new ProductForBasketSpecification(request.ProductId),
+            new ProductWithStockForBasketSpecification(request.ProductId),
             cancellationToken);
         if (product is null)
             return Result<BasketResponse>.Failure(BasketErrors.ProductNotFound);
+
+        if (product.Stock.Quantity == 0)
+            return Result<BasketResponse>.Failure(BasketErrors.OutOfStock);
 
         var isGuest = !currentUserService.IsAuthenticated;
         var buyerId = currentUserService.BuyerId ?? Guid.NewGuid();
 
         var basket = await basketStore.GetOrCreateAsync(buyerId, cancellationToken);
+
+        var totalQuantity = request.Quantity + basket.GetItemQuantity(product.Id);
+        if (totalQuantity > product.Stock.Quantity)
+            return Result<BasketResponse>.Failure(BasketErrors.InsufficientStock);
 
         var addResult = basket.AddItem(
             productId: product.Id,

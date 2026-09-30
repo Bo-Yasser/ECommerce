@@ -13,15 +13,10 @@ public sealed class GetPagedProductsQueryHandler(IReadRepository<Product> reposi
 {
     public async Task<Result<PagedResult<ProductResponse>>> Handle(GetPagedProductsQuery request, CancellationToken cancellationToken)
     {
-        var countSpec = new PagedProductsSpecification(
-                request.Search,
-                request.BrandId,
-                request.TypeId);
+        var countSpec = new ProductsFilterSpecification(request.Filters);
 
         var listSpec = new PagedProductsSpecification(
-                search: request.Search,
-                brandId: request.BrandId,
-                typeId: request.TypeId,
+                filters: request.Filters,
                 sortBy: request.SortBy,
                 sortDescending: request.SortDescending,
                 pageNumber: request.PageNumber,

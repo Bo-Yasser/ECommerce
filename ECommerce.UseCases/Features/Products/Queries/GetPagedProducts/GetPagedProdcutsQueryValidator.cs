@@ -15,6 +15,11 @@ public sealed class GetPagedProdcutsQueryValidator : AbstractValidator<GetPagedP
             .InclusiveBetween(1, 1000)
             .WithErrorCode("Products.PageSize.Invalid")
             .WithMessage("Page size must be between 1 and 1000.");
+
+        RuleFor(query => query.SortBy)
+            .IsInEnum()
+            .WithErrorCode("Products.SortBy.Invalid")
+            .WithMessage("Invalid Product sort field.");
     }
 
 }

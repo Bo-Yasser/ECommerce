@@ -42,6 +42,7 @@ public sealed class DeliveryMethodConfiguration : IEntityTypeConfiguration<Deliv
             .IsRowVersion();
 
         builder.HasIndex(dm => dm.Name)
+            .IsUnique()
             .HasFilter("[IsDeleted] = 0");
 
         builder.HasIndex(dm => new { dm.IsAvailable, dm.DisplayOrder })

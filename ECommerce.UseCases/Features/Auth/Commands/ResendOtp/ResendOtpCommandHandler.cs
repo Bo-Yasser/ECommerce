@@ -38,12 +38,12 @@ public sealed class ResendOtpCommandHandler(
             return Result.Failure(AuthErrors.OtpRequestLimitExceeded);
         }
 
-        var nextAllowedResendTime = pendingUser.LastOtpSendTime.AddMinutes(_settings.MaxTimeToSendOtp);
+        var nextAllowedResendTime = pendingUser.LastOtpSendTime.AddMinutes(_settings.MaxMinutesToSendOtp);
         if (DateTimeOffset.UtcNow < nextAllowedResendTime)
         {
             return Result.Failure(AuthErrors.VerificationPending with
             {
-                Message = $"Please wait at least {_settings.MaxTimeToSendOtp} minute(s) before requesting a new OTP."
+                Message = $"Please wait at least {_settings.MaxMinutesToSendOtp} minute(s) before requesting a new OTP."
             });
         }
 

@@ -19,7 +19,7 @@ public class EmailVerificationSettingsValidator : AbstractValidator<EmailVerific
         RuleFor(x => x.MaxFailedAttempts)
             .GreaterThan(0);
 
-        RuleFor(x => x.MaxTimeToSendOtp)
+        RuleFor(x => x.MaxMinutesToSendOtp)
             .GreaterThan(0);
     }
 

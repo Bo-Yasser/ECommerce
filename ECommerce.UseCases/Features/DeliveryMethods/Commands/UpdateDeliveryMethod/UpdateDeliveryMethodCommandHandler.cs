@@ -2,6 +2,7 @@
 using ECommerce.Domain.Common.Errors;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
+using ECommerce.UseCases.Common.Exceptions;
 using ECommerce.UseCases.Features.DeliveryMethods.Specifications;
 using MediatR;
 
@@ -16,8 +17,12 @@ public sealed class UpdateDeliveryMethodCommandHandler(
         var deliveryMethod = await repository.FirstOrDefaultAsync(
             new DeliveryMethodByIdSpecification(request.Id),
             cancellationToken);
+
         if (deliveryMethod is null)
             return Result.Failure(DeliveryMethodErrors.NotFound);
+
+        if (!deliveryMethod.RowVersion.SequenceEqual(request.RowVersion))
+            return Result.Failure(DeliveryMethodErrors.ConcurrencyConflict);
 
         var nameExists = await repository.AnyAsync(
             new DeliveryMethodByNameSpecification(request.Name, request.Id),
@@ -25,19 +30,34 @@ public sealed class UpdateDeliveryMethodCommandHandler(
         if (nameExists)
             return Result.Failure(DeliveryMethodErrors.NameAlreadyExists);
 
-        var updateResult = deliveryMethod.Update(
-            name: request.Name,
-            price: request.Price,
-            estimatedDeliveryTime: request.EstimatedDeliveryTime,
-            description: request.Description,
-            isAvailable: request.IsAvailable,
-            displayOrder: request.DisplayOrder);
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var updateResult = deliveryMethod.Update(
+                name: request.Name,
+                price: request.Price,
+                estimatedDeliveryTime: request.EstimatedDeliveryTime,
+                description: request.Description,
+                isAvailable: request.IsAvailable,
+                displayOrder: request.DisplayOrder);
 
-        if (updateResult.IsFailure)
-            return Result.Failure(updateResult.Error!);
+            if (updateResult.IsFailure)
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return Result.Failure(updateResult.Error!);
+            }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (ConcurrencyConflictException)
+        {
+            return Result.Failure(DeliveryMethodErrors.ConcurrencyConflict);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 }

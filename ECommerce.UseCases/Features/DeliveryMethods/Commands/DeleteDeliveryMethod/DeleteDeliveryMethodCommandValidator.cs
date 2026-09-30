@@ -9,5 +9,8 @@ public sealed class DeleteDeliveryMethodCommandValidator : AbstractValidator<Del
         RuleFor(dm => dm.Id)
             .NotEmpty()
             .WithMessage("Delivery Method Id is required");
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty().WithMessage("Row Version is required and cannot be empty.");
     }
 }

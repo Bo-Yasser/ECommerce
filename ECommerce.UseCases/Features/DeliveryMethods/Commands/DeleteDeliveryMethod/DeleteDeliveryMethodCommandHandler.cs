@@ -2,6 +2,7 @@
 using ECommerce.Domain.Common.Errors;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
+using ECommerce.UseCases.Common.Exceptions;
 using ECommerce.UseCases.Features.DeliveryMethods.Specifications;
 using MediatR;
 
@@ -21,10 +22,24 @@ public sealed class DeleteDeliveryMethodCommandHandler(
         if (deliveryMethod is null)
             return Result.Failure(DeliveryMethodErrors.NotFound);
 
+        if (!deliveryMethod.RowVersion.SequenceEqual(request.RowVersion))
+            return Result.Failure(DeliveryMethodErrors.ConcurrencyConflict);
 
-        repository.Delete(deliveryMethod);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            repository.Delete(deliveryMethod);
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (ConcurrencyConflictException)
+        {
+            return Result.Failure(DeliveryMethodErrors.ConcurrencyConflict);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 }

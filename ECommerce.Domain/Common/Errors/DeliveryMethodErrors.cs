@@ -45,4 +45,7 @@ public static class DeliveryMethodErrors
 
     public static readonly Error DeleteFailed =
         Error.Failure("DeliveryMethod.DeleteFailed", "Delivery method could not be deleted");
+
+    public static readonly Error ConcurrencyConflict =
+        Error.Conflict("DeliveryMethod.Stock.ConcurrencyConflict", "Stock was updated by another process. Please refresh and try again.");
 }

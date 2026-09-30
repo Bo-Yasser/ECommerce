@@ -18,7 +18,8 @@ public sealed class DeliveryMethodByIdToResponseSpecification : Specification<De
                 dm.Price,
                 dm.EstimatedDeliveryTime,
                 dm.IsAvailable,
-                dm.DisplayOrder
+                dm.DisplayOrder,
+                dm.RowVersion
             ));
     }
 }

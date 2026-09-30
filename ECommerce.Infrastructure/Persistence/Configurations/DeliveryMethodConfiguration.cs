@@ -38,6 +38,9 @@ public sealed class DeliveryMethodConfiguration : IEntityTypeConfiguration<Deliv
         builder.Property(dm => dm.DisplayOrder)
             .HasDefaultValue(0);
 
+        builder.Property(dm => dm.RowVersion)
+            .IsRowVersion();
+
         builder.HasIndex(dm => dm.Name)
             .HasFilter("[IsDeleted] = 0");
 

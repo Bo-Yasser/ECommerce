@@ -68,4 +68,7 @@ public static class ProductErrors
 
     public static readonly Error DeleteFailed =
         Error.Failure("Product.DeleteFailed", "Product could not be deleted");
+
+    public static readonly Error ConcurrencyConflict =
+        Error.Conflict("Product.Stock.ConcurrencyConflict", "Stock was updated by another process. Please refresh and try again.");
 }

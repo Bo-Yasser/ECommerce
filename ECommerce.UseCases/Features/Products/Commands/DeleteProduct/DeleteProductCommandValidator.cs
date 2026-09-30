@@ -8,5 +8,8 @@ public sealed class DeleteProductCommandValidator : AbstractValidator<DeleteProd
     {
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Product Id is required");
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty().WithMessage("Row Version is required and cannot be empty.");
     }
 }

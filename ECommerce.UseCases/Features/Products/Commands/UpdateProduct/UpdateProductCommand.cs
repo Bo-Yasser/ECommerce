@@ -10,4 +10,5 @@ public sealed record UpdateProductCommand(
     decimal Price,
     string PictureUrl,
     Guid ProductTypeId,
-    Guid ProductBrandId) : IRequest<Result>;
+    Guid ProductBrandId,
+    byte[] RowVersion) : IRequest<Result>;

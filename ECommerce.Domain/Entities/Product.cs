@@ -12,6 +12,7 @@ public sealed class Product : BaseEntity
     public string Sku { get; private set; } = null!;
     public string PictureUrl { get; private set; } = null!;
     public decimal Price { get; private set; }
+    public byte[] RowVersion { get; private set; } = [];
 
     // ProductBrand One Brand include Many Products 1:M
     public Guid ProductBrandId { get; private set; }

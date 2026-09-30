@@ -9,5 +9,6 @@ public sealed record ProductResponse(
     string PictureUrl,
     string ProductType,
     string ProductBrand,
+    byte[] RowVersion,
     int AvailableStock,
     bool InStock);
